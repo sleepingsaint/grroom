@@ -1,36 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grroom/models/influencer.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ola_like_country_picker/ola_like_country_picker.dart';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
-class InfluencerScreen extends StatefulWidget {
+class AddInfluencerScreen extends StatefulWidget {
+  final Influencer influencer;
+  AddInfluencerScreen({this.influencer});
+
   @override
-  _InfluencerScreenState createState() => _InfluencerScreenState();
+  _AddInfluencerScreenState createState() => _AddInfluencerScreenState();
 }
 
-class _InfluencerScreenState extends State<InfluencerScreen> {
-
+class _AddInfluencerScreenState extends State<AddInfluencerScreen> {
+  final Dio dio = new Dio();
   final _formKey = GlobalKey<FormState>();
-
+  final storage = FlutterSecureStorage();
+  String token;
   PickedFile _image;
   final _picker = ImagePicker();
-  Future getImage() async {
-    final _pickedImage = await _picker.getImage(source: ImageSource.gallery);
-    setState(() {
-      if(_pickedImage != null){
-        _image = _pickedImage;
-      }
-    });
-  }
 
   TextEditingController _instaHandleController = new TextEditingController();
   TextEditingController _instaLinkController = new TextEditingController();
   TextEditingController _followersController = new TextEditingController();
   TextEditingController _countryController = new TextEditingController();
   TextEditingController _occupationController = new TextEditingController();
-  TextEditingController _albumController = new TextEditingController();
 
   String _selectedBodyTone;
   String _selectedBodyShape;
@@ -38,33 +35,32 @@ class _InfluencerScreenState extends State<InfluencerScreen> {
   
   List<String> _bodyToneOptions = <String>["fair", "neutral", "dark"];
   List<String> _bodyShapeOptions = <String>["fat", "slim", "fit"];
-  List<String> _specialityOptions = <String>["specail", "not special", "very special"];
+  List<String> _specialityOptions = <String>["specail", "not special", "very special"]; 
 
-  Future<void> _pickDirectory(BuildContext context) async {
-    Directory _rootDir = await getExternalStorageDirectory();
-    String path = await FilesystemPicker.open(
-      title: 'Select Influencer album folder',
-      context: context,
-      rootDirectory: _rootDir,
-      fsType: FilesystemType.folder,
-      pickText: 'select folder',
-      folderIconColor: Colors.teal,
-    );
-    if(path != null) {
-      setState(() => _albumController.text = path);
+  @override
+  void initState() { 
+    super.initState();
+    storage.read(key: "token").then((val) => setState(() => token = val));
+    if(widget.influencer != null){
+      _instaHandleController.text = widget.influencer.igUsername;
+      _instaLinkController.text = widget.influencer.igProfileLink;
+      _countryController.text = widget.influencer.country;
     }
-  } 
+  }
   @override
   Widget build(BuildContext context) {
 
     // Influencer Image
+    Widget _imageWidget = _image == null ? 
+      (widget.influencer.image == null || widget.influencer.image.isEmpty) ? 
+        null : Image.network(widget.influencer.image ?? "") 
+      : Image.file(File(_image.path));
+
     Widget _imagePicker = RaisedButton.icon(
       onPressed: getImage, 
       icon: Icon(_image == null ? Icons.image : Icons.refresh), 
       label: Text(_image == null ? "Select Image" : "Select another image"),
     );
-
-    Widget _imageWidget = _image != null ? Image.file(File(_image.path)) : null;
 
     // Instagram Handle
     Widget _instaHandle = TextFormField(
@@ -178,33 +174,28 @@ class _InfluencerScreenState extends State<InfluencerScreen> {
       validator: (val) => val.isEmpty ? "Please enter a occupation" : null,
     );
 
-    // picking the album folder for influencer
-    Widget _album = TextFormField(
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: "Select Album Folder",
-        border: OutlineInputBorder(),
-      ),
-      controller: _albumController,
-      onTap: () => _pickDirectory(context),
-      validator: (val) => val.isEmpty ? "Please select a country" : null,
-    );
 
     return Container(
       padding: EdgeInsets.all(8.0),
       child: Form(
         key: _formKey,
         child: ListView(
+
+          // image picker
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
-                child: _imageWidget,
-                color: Colors.red,
-              ),
+              child: _imageWidget
             ),
-            _imagePicker,
-            _instaHandle,
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _imagePicker,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: _instaHandle,
+            ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: _instaLink,
@@ -234,17 +225,13 @@ class _InfluencerScreenState extends State<InfluencerScreen> {
               child: _occupation,
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _album,
-            ),
-            Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 8.0),
               child: RaisedButton.icon(
                 padding: EdgeInsets.all(8.0),
                 color: Colors.blueGrey,
                 onPressed: _handleSubmitInfluencer,
                 icon: Icon(Icons.check, color: Colors.white,),
-                label: Text("Add influencer", style: TextStyle(color: Colors.white),)
+                label: Text(widget.influencer == null ? "Add influencer" : "Sumbit", style: TextStyle(color: Colors.white),)
               ),
             )
           ],
@@ -254,10 +241,58 @@ class _InfluencerScreenState extends State<InfluencerScreen> {
     );
   }
 
-  void _handleSubmitInfluencer(){
+  Future<void> _handleSubmitInfluencer() async {
     if(_formKey.currentState.validate()){
-      print("success");
+      const String endpoint = "https://groombackend.herokuapp.com/api/v1/influencer";
+      FormData formData = new FormData.fromMap({
+          "firstName": "salman katsdfasdrina",
+          "lastName": "khasdfasdfan",
+          "igUsername": _instaHandleController.text ?? "",
+          "igProfileLink": _instaLinkController.text ?? "",
+          "undertone": _selectedBodyTone ?? "",
+          "bodyShape": _selectedBodyShape ?? "",
+          "bodySize": "fat",
+          "noOfFollower": _followersController.text ?? "",
+          "country": _countryController.text ?? "",
+          "speciality": _selectedSpeciality ?? "",
+          "image": await MultipartFile.fromFile(_image.path, filename: _image.path.split('/').last)
+        });
+     
+      var res = await dio.post(endpoint, data: formData, options: RequestOptions(
+        headers: {HttpHeaders.authorizationHeader : "Bearer $token"},
+      ));
+      // var res = await http.post(
+      //   endpoint,
+      //   headers: {HttpHeaders.authorizationHeader : "Bearer $token"},
+      //   body: {
+      //     "firstName": "salman",
+      //     "lastName": "khan",
+      //     "igUsername": _instaHandleController.text ?? "",
+      //     "igProfileLink": _instaLinkController.text ?? "",
+      //     "undertone": _selectedBodyTone ?? "",
+      //     "bodyShape": _selectedBodyShape ?? "",
+      //     "bodySize": "fat",
+      //     "noOfFollower": _followersController.text ?? "",
+      //     "country": _countryController.text ?? "",
+      //     "speciality": _selectedSpeciality ?? "",
+      //     "image": _image
+      //   }
+      // );
+
+
+      print(res.data);
     }
+
     print(_formKey.currentState);
+  }
+
+  Future getImage() async {
+    final _pickedImage = await _picker.getImage(source: ImageSource.gallery);
+    setState(() {
+      if(_pickedImage != null){
+        _image = _pickedImage;
+        print(_image.path.split('/').last);
+      }
+    });
   }
 }

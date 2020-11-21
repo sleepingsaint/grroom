@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 class StylistScreen extends StatefulWidget {
   @override
   _StylistScreenState createState() => _StylistScreenState();
@@ -9,10 +12,15 @@ class StylistScreen extends StatefulWidget {
 
 class _StylistScreenState extends State<StylistScreen> {
   List<Map<String, dynamic>> influencers;
-
+  final storage = FlutterSecureStorage();
+  String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjBmODc3M2NiOTgzMDAxNzA0MDM5OCIsImlhdCI6MTYwNTg1MTQ3MiwiZXhwIjoxNjEzNjI3NDcyfQ.vDCEocYHHUxtYlwy7mF0Las5gASDkTE0xU02yp2xbH0";
   @override
   void initState() {
     super.initState();
+    // storage.read(key: "token").then((value) => setState(() => token = value));
+    http.get("https://groombackend.herokuapp.com/api/v1/meta", headers: {
+      HttpHeaders.authorizationHeader: "Bearer $token"
+    }).then((value) => print(value.body));
     setState(() {
       influencers = [
         {
