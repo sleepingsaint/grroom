@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: ListView(
                   children: [
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.2,
                     ),
                     Text(
                       "Log In",

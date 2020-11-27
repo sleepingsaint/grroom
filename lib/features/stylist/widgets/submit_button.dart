@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:grroom/features/stylist/widgets/simple_dialog.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:provider/provider.dart';
 
@@ -139,7 +140,7 @@ class _SubmitButtonState extends State<SubmitButton> {
     });
 
     if (response?.statusCode == 201 || response.data["status"] == 'success') {
-      showDialog(context: context, child: FeedbackDialog(isSuccess: true));
+      showDialog(context: context, child: MySimpleDialog(isSuccess: true));
     } else {
       showDialog(context: context, child: FeedbackDialog(isSuccess: false));
     }

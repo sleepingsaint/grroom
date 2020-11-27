@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grroom/features/stylist/widgets/feedback_dialog.dart';
+import 'package:grroom/features/stylist/widgets/simple_dialog.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -98,7 +99,7 @@ class _ISubmitButtonState extends State<ISubmitButton> {
       "igProfileLink":
           'https://www.instagram.com/${provider.igHandle}'.toString(),
       "undertone": provider.underTone.toString(),
-      "bodyShape": jsonEncode(provider.bodyShape),
+      // "bodyShape": jsonEncode(provider.bodyShape),
       "bodySize": provider.bodySize.toString(),
       "noOfFollower": provider.followerCount.toString(),
       "country": provider.counrty.toString(),
@@ -144,10 +145,10 @@ class _ISubmitButtonState extends State<ISubmitButton> {
       isLoading = false;
     });
 
-    if (response?.statusCode == 201) {
+    if (response?.statusCode == 201 || response?.statusCode == 200) {
       showDialog(
           context: context,
-          child: FeedbackDialog(
+          child: MySimpleDialog(
             isSuccess: true,
           ));
     } else {
