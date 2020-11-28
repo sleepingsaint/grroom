@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grroom/data/remote_fetch.dart';
 import 'package:grroom/features/stylist/pages/stylist_details_page.dart';
 import 'package:grroom/features/stylist/pages/stylist_page.dart';
 import 'package:grroom/models/stylist.dart';
@@ -53,173 +54,199 @@ class _HandleStylistPageState extends State<HandleStylistPage>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: CustomScrollView(
-          controller: widget.scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-              elevation: 1,
-              backgroundColor: Colors.white,
-              automaticallyImplyLeading: false,
-              stretch: true,
-              floating: true,
-              expandedHeight: 60,
-              flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
-                title: null,
-                background: InkWell(
-                  onTap: () {
-                    showSearch(
-                        context: context,
-                        delegate:
-                            StylistSearch(stylists, contextPage: context));
-                  },
-                  child: Container(
-                    height: 40,
-                    alignment: Alignment.center,
-                    width: double.maxFinite,
-                    decoration: const BoxDecoration(
-                      color: Colors.black87,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.search,
-                          color: Colors.white54,
-                          size: 16,
-                        ),
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          'Search stylists',
-                          style: TextStyle(
-                              color: Colors.white54,
-                              letterSpacing: 0.5,
-                              fontWeight: FontWeight.w400),
-                        ),
-                      ],
+        body: RefreshIndicator(
+          displacement: 100,
+          color: Colors.white,
+          backgroundColor: Colors.black87,
+          onRefresh: () async {
+            stylists = await RemoteFetch.getAllStylists();
+            setState(() {});
+            return true;
+          },
+          child: CustomScrollView(
+            controller: widget.scrollController,
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverAppBar(
+                elevation: 1,
+                backgroundColor: Colors.white,
+                automaticallyImplyLeading: false,
+                stretch: true,
+                floating: true,
+                expandedHeight: 60,
+                flexibleSpace: FlexibleSpaceBar(
+                  centerTitle: true,
+                  title: null,
+                  background: InkWell(
+                    onTap: () {
+                      showSearch(
+                          context: context,
+                          delegate:
+                              StylistSearch(stylists, contextPage: context));
+                    },
+                    child: Container(
+                      height: 40,
+                      alignment: Alignment.center,
+                      width: double.maxFinite,
+                      decoration: const BoxDecoration(
+                        color: Colors.black87,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search,
+                            color: Colors.white54,
+                            size: 16,
+                          ),
+                          SizedBox(
+                            width: 4,
+                          ),
+                          Text(
+                            'Search stylists',
+                            style: TextStyle(
+                                color: Colors.white54,
+                                letterSpacing: 0.5,
+                                fontWeight: FontWeight.w400),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                  stretchModes: [
+                    StretchMode.zoomBackground,
+                  ],
                 ),
-                stretchModes: [
-                  StretchMode.zoomBackground,
-                ],
               ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  ListView.builder(
-                      padding: const EdgeInsets.only(top: 20, bottom: 100),
-                      physics: const BouncingScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: stylists.length > 12
-                          ? stylists.length + 1
-                          : stylists.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        if (index == stylists.length && stylists.length > 12) {
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    ListView.builder(
+                        padding: const EdgeInsets.only(top: 20, bottom: 100),
+                        physics: const BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: stylists.length > 12
+                            ? stylists.length + 1
+                            : stylists.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          if (index == stylists.length &&
+                              stylists.length > 12) {
+                            return InkWell(
+                              onTap: () {
+                                widget.scrollController.animateTo(0.0,
+                                    duration: const Duration(milliseconds: 800),
+                                    curve: Curves.linearToEaseOut);
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 20),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('Back to top',
+                                        style: GoogleFonts.nunito(
+                                          color: Colors.grey,
+                                        )),
+                                    SlideTransition(
+                                      position: topAnimation,
+                                      child: Icon(
+                                        Icons.arrow_upward,
+                                        size: 14,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
                           return InkWell(
-                            onTap: () {
-                              widget.scrollController.animateTo(0.0,
-                                  duration: const Duration(milliseconds: 800),
-                                  curve: Curves.linearToEaseOut);
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(top: 20),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('Back to top',
-                                      style: GoogleFonts.nunito(
-                                        color: Colors.grey,
-                                      )),
-                                  SlideTransition(
-                                    position: topAnimation,
-                                    child: Icon(
-                                      Icons.arrow_upward,
-                                      size: 14,
+                            child: Card(
+                              elevation: 5,
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5)),
+                              shadowColor:
+                                  Image.asset('assets/designer.jpg').color,
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 10),
+                                onTap: () =>
+                                    Navigator.of(context).push(PageRouteBuilder(
+                                  pageBuilder: (BuildContext context,
+                                      Animation<double> animation,
+                                      Animation<double> secondaryAnimation) {
+                                    return StylistDetailsPage(
+                                      stylist: stylists[index],
+                                    );
+                                  },
+                                  transitionsBuilder: (BuildContext context,
+                                      Animation<double> animation,
+                                      Animation<double> secondaryAnimation,
+                                      Widget child) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: SlideTransition(
+                                        position: new Tween<Offset>(
+                                          begin: const Offset(1.0, 0.0),
+                                          end: Offset.zero,
+                                        ).animate(CurvedAnimation(
+                                            parent: animation,
+                                            curve: Curves.easeIn)),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                )),
+                                leading: CircleAvatar(
+                                  radius: 26,
+                                  backgroundColor: Colors.black87,
+                                  child: stylists[index].image.isEmpty
+                                      ? ClipRRect(
+                                          child: Image.asset(
+                                            "assets/designer.jpg",
+                                            height: 50,
+                                            width: 50,
+                                            fit: BoxFit.cover,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                        )
+                                      : ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: Image.network(
+                                            stylists[index].image,
+                                            height: 50,
+                                            width: 50,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                ),
+                                title: Text(stylists[index].id),
+                                subtitle: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    FaIcon(
+                                      FontAwesomeIcons.locationArrow,
+                                      size: 12,
+                                      color: Colors.black26,
                                     ),
-                                  )
-                                ],
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Text(stylists[index].place),
+                                  ],
+                                ),
                               ),
                             ),
                           );
-                        }
-                        return InkWell(
-                          child: Card(
-                            elevation: 5,
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            shadowColor:
-                                Image.asset('assets/designer.jpg').color,
-                            child: ListTile(
-                              isThreeLine: true,
-                              onTap: () =>
-                                  Navigator.of(context).push(PageRouteBuilder(
-                                pageBuilder: (BuildContext context,
-                                    Animation<double> animation,
-                                    Animation<double> secondaryAnimation) {
-                                  return StylistDetailsPage(
-                                    stylist: stylists[index],
-                                  );
-                                },
-                                transitionsBuilder: (BuildContext context,
-                                    Animation<double> animation,
-                                    Animation<double> secondaryAnimation,
-                                    Widget child) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: SlideTransition(
-                                      position: new Tween<Offset>(
-                                        begin: const Offset(1.0, 0.0),
-                                        end: Offset.zero,
-                                      ).animate(CurvedAnimation(
-                                          parent: animation,
-                                          curve: Curves.easeIn)),
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                              )),
-                              leading: CircleAvatar(
-                                radius: 26,
-                                backgroundColor: Colors.black87,
-                                child: stylists[index].image.isEmpty
-                                    ? ClipRRect(
-                                        child: Image.asset(
-                                          "assets/designer.jpg",
-                                          height: 50,
-                                          width: 50,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                      )
-                                    : ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        child: Image.network(
-                                          stylists[index].image,
-                                          height: 50,
-                                          width: 50,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                              ),
-                              title: Text(stylists[index].id),
-                            ),
-                          ),
-                        );
-                      })
-                ],
-              ),
-            )
-          ],
+                        })
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
         floatingActionButton: FloatingActionButton(
             heroTag: UniqueKey(),
@@ -232,21 +259,8 @@ class _HandleStylistPageState extends State<HandleStylistPage>
               size: 12,
             ),
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => Scaffold(
-                      appBar: AppBar(
-                        automaticallyImplyLeading: false,
-                        leading: IconButton(
-                          icon: Icon(Icons.arrow_back_ios, size: 16),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                        backgroundColor: Colors.black87,
-                        title: Text(
-                          'Add Stylist',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ),
-                      body: StylistPage(),
-                    )))),
+                  builder: (BuildContext context) => StylistPage(),
+                ))),
       ),
     );
   }

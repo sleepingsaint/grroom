@@ -99,7 +99,8 @@ class _ISubmitButtonState extends State<ISubmitButton> {
       "igProfileLink":
           'https://www.instagram.com/${provider.igHandle}'.toString(),
       "undertone": provider.underTone.toString(),
-      // "bodyShape": jsonEncode(provider.bodyShape),
+      "bodyShape": jsonEncode(provider.bodyShape),
+      "gender": provider.gender.toString(),
       "bodySize": provider.bodySize.toString(),
       "noOfFollower": provider.followerCount.toString(),
       "country": provider.counrty.toString(),

@@ -4,12 +4,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:provider/provider.dart';
 
-List<String> _seasonOptions = ["Summer", "Winter", "Autumn", "Spring"];
-
 class SeasonBuilder extends StatefulWidget {
   final List<String> seasons;
+  final List<String> fullList;
 
-  const SeasonBuilder({Key key, this.seasons}) : super(key: key);
+  const SeasonBuilder({Key key, this.seasons, this.fullList}) : super(key: key);
   @override
   _SeasonBuilderState createState() => _SeasonBuilderState();
 }
@@ -84,7 +83,8 @@ class _SeasonBuilderState extends State<SeasonBuilder> {
                   .copyWith(bottom: 20),
               crossAxisSpacing: 20,
               childAspectRatio: 3,
-              children: _seasonOptions
+              children: Provider.of<AllProvider>(context)
+                  .baseSeason
                   .map((e) => GestureDetector(
                         onTap: () {
                           setState(() {

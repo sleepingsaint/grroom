@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -50,10 +51,10 @@ class _StylistPageState extends State<StylistPage> {
       setState(() {
         if (_pickedImage != null) {
           _image = _pickedImage;
+          Provider.of<AllProvider>(context, listen: false)
+              .updateStylistPageImage(_image.path);
         }
       });
-      Provider.of<AllProvider>(context, listen: false)
-          .updateStylistPageImage(_image.path);
     }
 
     Widget imageHeader() {
@@ -145,48 +146,69 @@ class _StylistPageState extends State<StylistPage> {
           duration: const Duration(seconds: 1));
     }
 
-    return SafeArea(
-      child: GestureDetector(
-        onTap: () {
-          // Provider.of<AllProvider>(context, listen: false).hideInfluencerCode();
-        },
+    return WillPopScope(
+      onWillPop: () async {
+        Provider.of<AllProvider>(context, listen: false).clearAll();
+
+        Navigator.pop(context);
+        return false;
+      },
+      child: SafeArea(
         child: Scaffold(
-            body: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-              elevation: 1,
-              backgroundColor: Colors.white,
+            appBar: AppBar(
               automaticallyImplyLeading: false,
-              stretch: true,
-              expandedHeight: _sHeight * 0.5,
-              flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
-                title: _image != null
-                    ? Container(
-                        height: 30,
-                        child: RaisedButton(
-                          color: Colors.white,
-                          child: Text(
-                            'Select another',
-                            style: TextStyle(fontSize: 10),
-                          ),
-                          onPressed: getImage,
-                        ),
-                      )
-                    : null,
-                background: imageHeader(),
-                stretchModes: [
-                  StretchMode.zoomBackground,
-                  StretchMode.blurBackground
-                ],
+              leading: IconButton(
+                icon: Transform.rotate(
+                    angle: -pi / 2,
+                    child: Icon(Icons.arrow_back_ios, size: 16)),
+                onPressed: () {
+                  Provider.of<AllProvider>(context, listen: false).clearAll();
+
+                  Navigator.pop(context);
+                },
+              ),
+              backgroundColor: Colors.black87,
+              title: Text(
+                'Add Stylist',
+                style: TextStyle(fontSize: 14),
               ),
             ),
-            SliverList(
-              delegate: SliverChildListDelegate(listOfWidgets),
-            )
-          ],
-        )),
+            body: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverAppBar(
+                  elevation: 1,
+                  backgroundColor: Colors.white,
+                  automaticallyImplyLeading: false,
+                  stretch: true,
+                  expandedHeight: _sHeight * 0.5,
+                  flexibleSpace: FlexibleSpaceBar(
+                    centerTitle: true,
+                    title: _image != null
+                        ? Container(
+                            height: 30,
+                            child: RaisedButton(
+                              color: Colors.white,
+                              child: Text(
+                                'Select another',
+                                style: TextStyle(fontSize: 10),
+                              ),
+                              onPressed: getImage,
+                            ),
+                          )
+                        : null,
+                    background: imageHeader(),
+                    stretchModes: [
+                      StretchMode.zoomBackground,
+                      StretchMode.blurBackground
+                    ],
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildListDelegate(listOfWidgets),
+                )
+              ],
+            )),
       ),
     );
   }

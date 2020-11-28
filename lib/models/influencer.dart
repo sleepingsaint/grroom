@@ -10,10 +10,12 @@ class Influencer {
   final String country;
   final String speciality;
   final String image;
+  final String gender;
   final String noOfFollower;
 
   Influencer(
       {this.id,
+      this.gender,
       this.firstName,
       this.lastName,
       this.igUsername,
@@ -29,6 +31,7 @@ class Influencer {
   static Influencer fromResp(var resp) {
     return Influencer(
         id: resp["_id"] ?? "id",
+        gender: resp['gender']??'Male',
         firstName: resp["firstName"] ?? "",
         lastName: resp["lastName"] ?? "",
         igUsername: resp["igUsername"] ?? "",
@@ -46,6 +49,7 @@ class Influencer {
   factory Influencer.empty() {
     return Influencer(
         id: '',
+        gender: 'Male',
         firstName: "",
         lastName: "",
         igUsername: "",

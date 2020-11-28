@@ -71,7 +71,7 @@ class _LocationBuilderState extends State<LocationBuilder> {
                               borderSide:
                                   BorderSide(color: Colors.black12, width: 1))),
                     )),
-                if (box.length < 3)
+                if (box.length < 2)
                   Container()
                 else
                   Column(

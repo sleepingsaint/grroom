@@ -4,8 +4,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:provider/provider.dart';
 
-List<String> _typesOptions = ["Basic", "Good", "Experimental"];
-
 class TypeBuilder extends StatefulWidget {
   final String type;
 
@@ -72,7 +70,8 @@ class _TypeBuilderState extends State<TypeBuilder> {
                 const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 20),
             crossAxisSpacing: 20,
             childAspectRatio: 3,
-            children: _typesOptions
+            children: Provider.of<AllProvider>(context)
+                .baseTypes
                 .map((e) => GestureDetector(
                       onTap: () {
                         setState(() {

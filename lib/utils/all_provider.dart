@@ -7,6 +7,7 @@ class AllProvider extends ChangeNotifier {
   String _influencerCode = '';
   String _igLink = '';
   String _firstName = '';
+  String _gender = 'Male';
   String _lastName = '';
   String _igHandle = '';
   String _country = '';
@@ -17,14 +18,33 @@ class AllProvider extends ChangeNotifier {
   List<String> _seasonsOption = [];
   List<String> _eventsOption = [];
   Map<String, dynamic> _stylesOption = {};
-  Map<String, dynamic> _bodyShape = {};
+  List<Map<String, dynamic>> _bodyShape = [];
   String _typeOption = '';
   String _location = '';
   String _stylistPageImage = '';
   String _influencerPageImage = '';
-  bool _seasonsStatus = false;
-  bool get seasonsStatus => _seasonsStatus;
+  // bool _seasonsStatus = false;
+  // bool get seasonsStatus => _seasonsStatus;
+
+  List<String> _baseEvents = [];
+  List<Map<String, dynamic>> _baseStyles = [];
+  List<String> _baseSeason = [];
+  List<String> _baseTypes = [];
+  List<String> _baseGender = [];
+  List<String> _baseBodySize = [];
+  List<String> _baseUnderTone = [];
+  Map<String, dynamic> _baseBodyShape = {};
+
   String get typeOption => _typeOption;
+  List<String> get baseEvents => _baseEvents;
+  List<String> get baseSeason => _baseSeason;
+  List<String> get baseUnderTone => _baseUnderTone;
+  List<String> get baseGender => _baseGender;
+  List<String> get baseBodySize => _baseBodySize;
+  List<String> get baseTypes => _baseTypes;
+  List<Map<String, dynamic>> get baseStyles => _baseStyles;
+  Map<String, dynamic> get baseBodyShape => _baseBodyShape;
+  String get gender => _gender;
   String get firstName => _firstName;
   String get lastName => _lastName;
   String get igLink => _igLink;
@@ -37,13 +57,53 @@ class AllProvider extends ChangeNotifier {
   int get bottomNavigationIndex => _bottomNavigationIndex;
   String get location => _location;
   Map<String, dynamic> get stylesOption => _stylesOption;
-  Map<String, dynamic> get bodyShape => _bodyShape;
+  List<Map<String, dynamic>> get bodyShape => _bodyShape;
   List<String> get seasonsOption => _seasonsOption;
   List<String> get eventsOption => _eventsOption;
   bool get influencerStatus => _influencerStatus;
   String get influencerCode => _influencerCode;
   String get stylistPageImage => _stylistPageImage;
   String get influencerPageImage => _influencerPageImage;
+
+  void updateBaseEvents(List<String> events) {
+    _baseEvents = events;
+    notifyListeners();
+  }
+
+  void updateBaseSeason(List<String> seasons) {
+    _baseSeason = seasons;
+    notifyListeners();
+  }
+
+  void updateBaseTypes(List<String> types) {
+    _baseTypes = types;
+    notifyListeners();
+  }
+
+  void updateBaseGender(List<String> gender) {
+    _baseGender = gender;
+    notifyListeners();
+  }
+
+  void updateBaseBodySize(List<String> bodySize) {
+    _baseBodySize = bodySize;
+    notifyListeners();
+  }
+
+  void updateBaseUndertone(List<String> underTone) {
+    _baseUnderTone = underTone;
+    notifyListeners();
+  }
+
+  void updateBaseBodyshape(Map<String, dynamic> shape) {
+    _baseBodyShape = shape;
+    notifyListeners();
+  }
+
+  void updateBaseStyles(List<Map<String, dynamic>> styles) {
+    _baseStyles = styles;
+    notifyListeners();
+  }
 
   void showInfluencerCode() {
     _influencerStatus = true;
@@ -57,6 +117,11 @@ class AllProvider extends ChangeNotifier {
 
   void updateInfluencerCode(String code) {
     _influencerCode = code;
+    notifyListeners();
+  }
+
+  void updateGender(String gender) {
+    _gender = gender;
     notifyListeners();
   }
 
@@ -125,7 +190,7 @@ class AllProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateBodyShape(Map<String, dynamic> bodyShape) {
+  void updateBodyShape(List<Map<String, dynamic>> bodyShape) {
     _bodyShape = bodyShape;
     notifyListeners();
   }
@@ -150,8 +215,36 @@ class AllProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleSeasons() {
-    _seasonsStatus = !_seasonsStatus;
+  // void toggleSeasons() {
+  //   _seasonsStatus = !_seasonsStatus;
+  //   notifyListeners();
+  // }
+
+  void clearAll() {
+    _influencerStatus = false;
+    _bottomNavigationIndex = 0;
+
+    _influencerCode = '';
+    _igLink = '';
+    _firstName = '';
+    _gender = 'Male';
+    _lastName = '';
+    _igHandle = '';
+    _country = '';
+    _bodySize = '';
+    _underTone = '';
+    _speciality = '';
+    _followersCount = 0;
+    _seasonsOption = [];
+    _eventsOption = [];
+    _stylesOption = {};
+    _bodyShape = [];
+    _typeOption = '';
+    _location = '';
+    _stylistPageImage = '';
+    _influencerPageImage = '';
+    // _seasonsStatus = false;
+
     notifyListeners();
   }
 }

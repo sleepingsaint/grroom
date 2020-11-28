@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:provider/provider.dart';
 
-List<String> _undertoneOptions = ["Warm", "Neutral", "Cool"];
-
 class UndertoneSection extends StatefulWidget {
   final String selectedTypes;
 
@@ -63,7 +61,8 @@ class _UndertoneSectionState extends State<UndertoneSection> {
                 const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 20),
             crossAxisSpacing: 20,
             childAspectRatio: 3,
-            children: _undertoneOptions
+            children: Provider.of<AllProvider>(context)
+                .baseUnderTone
                 .map((e) => GestureDetector(
                       onTap: () {
                         setState(() {

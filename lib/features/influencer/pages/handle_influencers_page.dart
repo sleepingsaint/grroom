@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -29,8 +30,6 @@ class HandleInfluencersPage extends StatefulWidget {
 
 class _HandleInfluencersPageState extends State<HandleInfluencersPage>
     with SingleTickerProviderStateMixin {
-  final storage = FlutterSecureStorage();
-  String token;
   AnimationController topAnimationController;
   Animation topAnimation;
   List<Influencer> influencers = [];
@@ -46,7 +45,6 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
     topAnimation = Tween(begin: Offset(0, -0.1), end: Offset.zero).animate(
         CurvedAnimation(
             parent: topAnimationController, curve: Curves.easeOutExpo));
-    storage.read(key: "token").then((val) => setState(() => token = val));
     super.initState();
   }
 
@@ -228,8 +226,9 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                                         : ClipRRect(
                                             borderRadius:
                                                 BorderRadius.circular(100),
-                                            child: Image.network(
-                                              influencers[index].image,
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  influencers[index].image,
                                               height: 50,
                                               width: 50,
                                               fit: BoxFit.cover,
@@ -289,24 +288,7 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                       pageBuilder: (BuildContext context,
                           Animation<double> animation,
                           Animation<double> secondaryAnimation) {
-                        return Scaffold(
-                          appBar: AppBar(
-                            automaticallyImplyLeading: false,
-                            leading: Transform.rotate(
-                              angle: -pi / 2,
-                              child: IconButton(
-                                icon: Icon(Icons.arrow_back_ios, size: 16),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ),
-                            backgroundColor: Colors.black87,
-                            title: Text(
-                              'Add Influencer',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          body: InfluencerPage(),
-                        );
+                        return InfluencerPage();
                       },
                       transitionsBuilder: (BuildContext context,
                           Animation<double> animation,

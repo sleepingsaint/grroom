@@ -4,34 +4,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:provider/provider.dart';
 
-List<String> _mainStyles = ["Formal", "Casual", "Sports"];
-Map<String, List<String>> _styleOptions = {
-  "Formal": <String>[
-    "Formal officewear",
-    "Business casual",
-    "Evening formal",
-    "Semi formal",
-    "Neutral"
-  ],
-  "Casual": <String>[
-    "Smart Casual",
-    "Streetwear",
-    "Boho chic",
-    "Girly",
-    "Retro",
-    "Evening casual",
-    "Resort",
-    "Neutral",
-  ],
-  "Sportwear": <String>[
-    "Athleisure",
-    "Yoga clothic",
-    "Swimwear",
-    "Gymwear",
-    "Neutral"
-  ]
-};
-
 class StyleBuilder extends StatefulWidget {
   final Map<String, dynamic> styleBody;
 
@@ -74,6 +46,55 @@ class _StyleBuilderState extends State<StyleBuilder> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> _mainStyles = Provider.of<AllProvider>(context)
+        .baseStyles
+        .map((element) => element['category'] as String)
+        .toList();
+
+    Map<String, dynamic> _styleOptions = {};
+    Provider.of<AllProvider>(context).baseStyles.forEach((element) {
+      _styleOptions[element["category"]] = element["value"];
+    });
+
+    List<Widget> children() {
+      return _styleOptions[selectedStyle]
+          .map((e) => GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (selectedSubStyle.contains(e)) {
+                      selectedSubStyle.remove(e);
+                    } else
+                      selectedSubStyle.add(e);
+                    styleBody["category"] = selectedStyle;
+                    styleBody["value"] = selectedSubStyle;
+                    Provider.of<AllProvider>(context, listen: false)
+                        .updateStyles(styleBody);
+                  });
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    e,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: selectedSubStyle.contains(e)
+                          ? Colors.white
+                          : Colors.black54,
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 1, color: Colors.black12),
+                      color: selectedSubStyle.contains(e)
+                          ? Colors.black87
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(2)),
+                ),
+              ))
+          .cast<Widget>()
+          .toList();
+    }
+
     return Card(
       shape: RoundedRectangleBorder(
           borderRadius: isExpanded
@@ -175,52 +196,15 @@ class _StyleBuilderState extends State<StyleBuilder> {
                       height: 10,
                     ),
                     GridView.count(
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 10,
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(horizontal: 20)
-                          .copyWith(bottom: 20),
-                      crossAxisSpacing: 20,
-                      childAspectRatio: 2.5,
-                      children: _styleOptions[selectedStyle]
-                          .map((e) => GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (selectedSubStyle.contains(e)) {
-                                      selectedSubStyle.remove(e);
-                                    } else
-                                      selectedSubStyle.add(e);
-                                    styleBody["category"] = selectedStyle;
-                                    styleBody["value"] = selectedSubStyle;
-                                    Provider.of<AllProvider>(context,
-                                            listen: false)
-                                        .updateStyles(styleBody);
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    e,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: selectedSubStyle.contains(e)
-                                          ? Colors.white
-                                          : Colors.black54,
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1, color: Colors.black12),
-                                      color: selectedSubStyle.contains(e)
-                                          ? Colors.black87
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(2)),
-                                ),
-                              ))
-                          .toList(),
-                    ),
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 10,
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.symmetric(horizontal: 20)
+                            .copyWith(bottom: 20),
+                        crossAxisSpacing: 20,
+                        childAspectRatio: 2.5,
+                        children: children()),
                   ],
                 ),
         ],

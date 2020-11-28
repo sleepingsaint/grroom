@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:grroom/data/remote_fetch.dart';
@@ -45,8 +46,17 @@ class IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     super.initState();
-    _future = Future.wait(
-        [RemoteFetch.getAllInfluencers(), RemoteFetch.getAllStylists()]);
+  }
+
+  @override
+  void didChangeDependencies() {
+    _future = Future.wait([
+      RemoteFetch.getAllInfluencers(),
+      RemoteFetch.getAllStylists(),
+      RemoteFetch.getConstants(
+          provider: Provider.of<AllProvider>(context, listen: false))
+    ]); // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
   }
 
   @override
@@ -120,7 +130,7 @@ class IndexPageState extends State<IndexPage> {
         future: _future,
         initialData: [
           List.generate(1, (index) => Influencer.empty()),
-          List.generate(1, (index) => Stylist.empty())
+          List.generate(1, (index) => Stylist.empty()),
         ],
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {

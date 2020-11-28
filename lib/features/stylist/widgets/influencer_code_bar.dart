@@ -50,13 +50,9 @@ class _InfluencerCodeBuilderState extends State<InfluencerCodeBuilder> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => InfluencerPage())),
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 20.0, left: 14),
-                      child: Text('Influencer code'),
-                    ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20.0, left: 14),
+                    child: Text('Influencer code'),
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.5,
@@ -87,13 +83,12 @@ class _InfluencerCodeBuilderState extends State<InfluencerCodeBuilder> {
               SizedBox(
                 height: 10,
               ),
-              if (box.length < 3)
+              if (box.length < 2)
                 Container()
               else
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  child: Wrap(
                     children: [
                       InkWell(
                         onTap: () {

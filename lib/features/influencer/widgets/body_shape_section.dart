@@ -4,29 +4,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:provider/provider.dart';
 
-List<String> _mainStyles = ["Female", "Male"];
-Map<String, List<String>> _styleOptions = {
-  "Female": <String>[
-    "Pear",
-    "Inverted triangle",
-    "Hourglass",
-    "Rectangle",
-    "Round"
-  ],
-  "Male": <String>[
-    "Rectangle",
-    "Inverted triangle",
-    "Square",
-    "Apple",
-  ]
-};
-
 class BodyShapeSection extends StatefulWidget {
-  final String selectedStyle;
-  final String selectedSubStyleStyle;
-
-  const BodyShapeSection(
-      {Key key, this.selectedStyle, this.selectedSubStyleStyle})
+  final List<Map<String, dynamic>> bodyShape;
+  final String gender;
+  const BodyShapeSection({Key key, this.bodyShape, this.gender})
       : super(key: key);
   @override
   _BodyShapeSectionState createState() => _BodyShapeSectionState();
@@ -34,27 +15,283 @@ class BodyShapeSection extends StatefulWidget {
 
 class _BodyShapeSectionState extends State<BodyShapeSection> {
   bool isExpanded = false;
-  String selectedStyle;
-  String selectedSubStyle = '';
-  Map<String, dynamic> styleBody = {};
+  String selectedGender;
+  String selectedFirstShape = '';
+  String selectedSecondShape = '';
+  List<Map<String, dynamic>> bodyShape = [];
 
   @override
   void initState() {
-    if (widget.selectedStyle != null && widget.selectedSubStyleStyle != null) {
-      selectedStyle = widget.selectedStyle;
-      selectedSubStyle = widget.selectedSubStyleStyle;
-      styleBody["gender"] = selectedStyle;
-      styleBody["shape"] = selectedSubStyle;
+    if (widget.bodyShape != null && widget.gender != null) {
+      if (widget.gender != 'Others') {
+        selectedGender = widget.bodyShape[0]["gender"];
+        selectedFirstShape = widget.bodyShape[0]["shape"];
+        bodyShape = [
+          {
+            "gender": selectedGender,
+            "shape": selectedFirstShape,
+          }
+        ];
+      } else {
+        selectedGender = "Others";
+        selectedFirstShape = widget.bodyShape[0]["shape"];
+        selectedSecondShape = widget.bodyShape[1]["shape"];
+        bodyShape = [
+          {
+            "gender": widget.bodyShape[0]["gender"],
+            "shape": selectedFirstShape,
+          },
+          {
+            "gender": widget.bodyShape[1]["gender"],
+            "shape": selectedSecondShape,
+          },
+        ];
+      }
+
       SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
         Provider.of<AllProvider>(context, listen: false)
-            .updateBodyShape(styleBody);
+            .updateBodyShape(bodyShape);
       });
-    }
+    } else {}
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    Map<String, List<String>> _styleOptions = {};
+    Provider.of<AllProvider>(context).baseBodyShape.forEach((key, value) {
+      print(value);
+      List<String> list = [];
+
+      value.forEach((e) {
+        list.add(e);
+      });
+      _styleOptions[key] = list;
+    });
+    selectedGender = Provider.of<AllProvider>(context).gender;
+    if (Provider.of<AllProvider>(context).bodyShape.isEmpty) {
+      setState(() {
+        selectedFirstShape = '';
+        selectedSecondShape = '';
+      });
+    }
+    List<Widget> genderSelection() {
+      return [
+        Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    endIndent: 10,
+                  ),
+                ),
+                Text(
+                  'Male',
+                  style: TextStyle(
+                      color: Colors.black54, fontWeight: FontWeight.w200),
+                ),
+                Expanded(
+                  child: Divider(
+                    indent: 10,
+                    color: Colors.black12,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            GridView.count(
+              physics: NeverScrollableScrollPhysics(),
+              crossAxisCount: 3,
+              mainAxisSpacing: 10,
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(horizontal: 20)
+                  .copyWith(bottom: 20),
+              crossAxisSpacing: 20,
+              childAspectRatio: 2.5,
+              children: _styleOptions['male']
+                  .map((e) => GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (selectedFirstShape == e) {
+                              selectedFirstShape = '';
+                            } else
+                              selectedFirstShape = e;
+
+                            bodyShape = [
+                              {
+                                "gender": "male",
+                                "shape": selectedFirstShape,
+                              },
+                              {
+                                "gender": "female",
+                                "shape": selectedSecondShape,
+                              },
+                            ];
+                            Provider.of<AllProvider>(context, listen: false)
+                                .updateBodyShape(bodyShape);
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                            e,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: selectedFirstShape == e
+                                  ? Colors.white
+                                  : Colors.black54,
+                            ),
+                          ),
+                          decoration: BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: Colors.black12),
+                              color: selectedFirstShape == e
+                                  ? Colors.black87
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(2)),
+                        ),
+                      ))
+                  .toList(),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    endIndent: 10,
+                  ),
+                ),
+                Text(
+                  'Female',
+                  style: TextStyle(
+                      color: Colors.black54, fontWeight: FontWeight.w200),
+                ),
+                Expanded(
+                  child: Divider(
+                    indent: 10,
+                    color: Colors.black12,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            GridView.count(
+              physics: NeverScrollableScrollPhysics(),
+              crossAxisCount: 3,
+              mainAxisSpacing: 10,
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(horizontal: 20)
+                  .copyWith(bottom: 20),
+              crossAxisSpacing: 20,
+              childAspectRatio: 2.5,
+              children: _styleOptions['female']
+                  .map((e) => GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (selectedSecondShape == e) {
+                              selectedSecondShape = '';
+                            } else
+                              selectedSecondShape = e;
+
+                            bodyShape = [
+                              {
+                                "gender": "female",
+                                "shape": selectedSecondShape,
+                              },
+                              {
+                                "gender": "male",
+                                "shape": selectedFirstShape,
+                              },
+                            ];
+                            Provider.of<AllProvider>(context, listen: false)
+                                .updateBodyShape(bodyShape);
+
+                            print(
+                                Provider.of<AllProvider>(context, listen: false)
+                                    .bodyShape);
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                            e,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: selectedSecondShape == e
+                                  ? Colors.white
+                                  : Colors.black54,
+                            ),
+                          ),
+                          decoration: BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: Colors.black12),
+                              color: selectedSecondShape == e
+                                  ? Colors.black87
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(2)),
+                        ),
+                      ))
+                  .toList(),
+            ),
+          ],
+        )
+      ];
+    }
+
+    List<Widget> children() {
+      return _styleOptions[selectedGender.toLowerCase()]
+          .map((e) => GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (selectedFirstShape == e) {
+                      selectedFirstShape = '';
+                    } else
+                      selectedFirstShape = e;
+
+                    bodyShape = [
+                      {
+                        "gender": selectedGender,
+                        "shape": selectedFirstShape,
+                      }
+                    ];
+                    Provider.of<AllProvider>(context, listen: false)
+                        .updateBodyShape(bodyShape);
+
+                    print(Provider.of<AllProvider>(context, listen: false)
+                        .bodyShape);
+                  });
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    e,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: selectedFirstShape.contains(e)
+                          ? Colors.white
+                          : Colors.black54,
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 1, color: Colors.black12),
+                      color: selectedFirstShape.contains(e)
+                          ? Colors.black87
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(2)),
+                ),
+              ))
+          .cast<Widget>()
+          .toList();
+    }
+
     return Card(
       shape: RoundedRectangleBorder(
           borderRadius: isExpanded
@@ -69,13 +306,11 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
             isExpanded = value;
           });
         },
-        animateTrailing: selectedStyle == null,
-        trailing: selectedStyle == null
+        animateTrailing: selectedGender == null,
+        trailing: selectedGender == null
             ? Icon(Icons.arrow_drop_down)
             : Text(
-                selectedSubStyle.isEmpty
-                    ? '$selectedStyle'
-                    : '$selectedStyle : $selectedSubStyle',
+                '$selectedGender',
                 style: TextStyle(
                     color: Colors.black54, fontWeight: FontWeight.w300),
               ),
@@ -86,127 +321,23 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
           'Body Shape',
           style: TextStyle(fontSize: 14),
         ),
-        children: [
-          GridView.count(
-            physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: 3,
-            mainAxisSpacing: 10,
-            shrinkWrap: true,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 20),
-            crossAxisSpacing: 20,
-            childAspectRatio: 3,
-            children: _mainStyles
-                .map((e) => GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedStyle = e;
-                          selectedSubStyle = '';
-                          //     Provider.of<AllProvider>(context, listen: false)
-                          // .updateInfluencerCode(value);
-                          styleBody["gender"] = selectedStyle;
-                          Provider.of<AllProvider>(context, listen: false)
-                              .updateBodyShape(styleBody);
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          e,
-                          style: TextStyle(
-                              color: selectedStyle == e
-                                  ? Colors.white
-                                  : Colors.black54),
-                        ),
-                        decoration: BoxDecoration(
-                            border: Border.all(width: 1, color: Colors.black12),
-                            color: selectedStyle == e
-                                ? Colors.black87
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(2)),
+        children: selectedGender == 'Others'
+            ? genderSelection()
+            : [
+                selectedGender == null
+                    ? SizedBox(height: 0)
+                    : GridView.count(
+                        physics: NeverScrollableScrollPhysics(),
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 10,
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.symmetric(horizontal: 20)
+                            .copyWith(bottom: 20),
+                        crossAxisSpacing: 20,
+                        childAspectRatio: 2.5,
+                        children: children(),
                       ),
-                    ))
-                .toList(),
-          ),
-          selectedStyle == null
-              ? SizedBox(height: 0)
-              : Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            endIndent: 10,
-                          ),
-                        ),
-                        Text(
-                          'Shapes',
-                          style: TextStyle(
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w200),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            indent: 10,
-                            color: Colors.black12,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    GridView.count(
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 10,
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.symmetric(horizontal: 20)
-                          .copyWith(bottom: 20),
-                      crossAxisSpacing: 20,
-                      childAspectRatio: 2.5,
-                      children: _styleOptions[selectedStyle]
-                          .map((e) => GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (selectedSubStyle == e) {
-                                      selectedSubStyle = '';
-                                    } else
-                                      selectedSubStyle = e;
-
-                                    styleBody["gender"] = selectedStyle;
-                                    styleBody["shape"] = selectedSubStyle;
-                                    Provider.of<AllProvider>(context,
-                                            listen: false)
-                                        .updateBodyShape(styleBody);
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    e,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: selectedSubStyle.contains(e)
-                                          ? Colors.white
-                                          : Colors.black54,
-                                    ),
-                                  ),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          width: 1, color: Colors.black12),
-                                      color: selectedSubStyle.contains(e)
-                                          ? Colors.black87
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(2)),
-                                ),
-                              ))
-                          .toList(),
-                    ),
-                  ],
-                ),
-        ],
+              ],
       ),
     );
   }

@@ -19,7 +19,7 @@ class SubmitButton extends StatefulWidget {
 
   const SubmitButton({
     Key key,
-    this.isEdit,
+    this.isEdit = false,
     this.id,
     this.networkImage,
   }) : super(key: key);
@@ -139,7 +139,7 @@ class _SubmitButtonState extends State<SubmitButton> {
       isLoading = false;
     });
 
-    if (response?.statusCode == 201 || response.data["status"] == 'success') {
+    if (response?.statusCode == 201 || response?.statusCode == 200) {
       showDialog(context: context, child: MySimpleDialog(isSuccess: true));
     } else {
       showDialog(context: context, child: FeedbackDialog(isSuccess: false));

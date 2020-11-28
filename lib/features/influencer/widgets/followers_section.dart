@@ -48,7 +48,7 @@ class _FollowersSectionState extends State<FollowersSection> {
                         .updateFollowerCount(int.parse(value));
                   }
                 },
-                keyboardType: TextInputType.numberWithOptions(),
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                     contentPadding: const EdgeInsets.all(10),
                     border: OutlineInputBorder(

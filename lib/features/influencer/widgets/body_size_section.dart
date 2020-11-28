@@ -4,8 +4,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:provider/provider.dart';
 
-List<String> _bodyOptions = ["Regular", "Oversized"];
-
 class BodySizeSection extends StatefulWidget {
   final String selectedTypes;
 
@@ -73,7 +71,8 @@ class _BodySizeSectionState extends State<BodySizeSection> {
                 const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 20),
             crossAxisSpacing: 20,
             childAspectRatio: 3,
-            children: _bodyOptions
+            children: Provider.of<AllProvider>(context)
+                .baseBodySize
                 .map((e) => GestureDetector(
                       onTap: () {
                         setState(() {

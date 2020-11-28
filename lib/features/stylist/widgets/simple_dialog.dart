@@ -67,7 +67,7 @@ class _MySimpleDialogState extends State<MySimpleDialog>
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 2)).whenComplete(() {
+    Future.delayed(const Duration(milliseconds: 1500)).whenComplete(() {
       _enterAnimationController.reverse();
       Future.delayed(kDuration400, () {
         Navigator.pop(context);
@@ -86,7 +86,7 @@ class _MySimpleDialogState extends State<MySimpleDialog>
               body: Container(
                 margin: EdgeInsets.only(
                     left: MediaQuery.of(context).size.width * 0.5 - 70,
-                    top: 100),
+                    top: 150),
                 decoration: BoxDecoration(
                     color: Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(5)),
