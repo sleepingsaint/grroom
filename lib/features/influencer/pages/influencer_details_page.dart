@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_link_preview/flutter_link_preview.dart';
@@ -289,8 +290,11 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                               tag: influencer.id,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(1000),
-                                child: Image.network(
-                                  influencer.image,
+                                child: CachedNetworkImage(
+                                  imageUrl: influencer.image,
+                                  errorWidget: (context, url, error) {
+                                    return Image.asset('assets/no_image.jpg');
+                                  },
                                   height: 190,
                                   width: 190,
                                   fit: BoxFit.cover,

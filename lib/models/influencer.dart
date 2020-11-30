@@ -28,10 +28,15 @@ class Influencer {
       this.image,
       this.noOfFollower});
 
+  @override
+  String toString() {
+    return '${id}${firstName}${lastName}${igUsername}';
+  }
+
   static Influencer fromResp(var resp) {
     return Influencer(
         id: resp["_id"] ?? "id",
-        gender: resp['gender']??'Male',
+        gender: resp['gender'] ?? 'Male',
         firstName: resp["firstName"] ?? "",
         lastName: resp["lastName"] ?? "",
         igUsername: resp["igUsername"] ?? "",

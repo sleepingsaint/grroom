@@ -9,7 +9,6 @@ import 'package:grroom/features/influencer/widgets/followers_section.dart';
 import 'package:grroom/features/influencer/widgets/gender_section.dart';
 import 'package:grroom/features/influencer/widgets/instagram_handle_section.dart';
 import 'package:grroom/features/influencer/widgets/instagram_link_section.dart';
-import 'package:grroom/features/influencer/widgets/name_section.dart';
 import 'package:grroom/features/influencer/widgets/speciality_section.dart';
 import 'package:grroom/features/influencer/widgets/undertone_section.dart';
 import 'package:grroom/utils/all_provider.dart';
@@ -29,8 +28,8 @@ class _InfluencerPageState extends State<InfluencerPage> {
   List<Widget> listItems = <Widget>[];
 
   List<Widget> listOfWidgets = [
-    NameSection(),
     InstagramHandleSection(),
+    InstagramLinkSection(),
     FollowersSection(),
     CountrySection(),
     BodySizeSection(),
@@ -141,7 +140,6 @@ class _InfluencerPageState extends State<InfluencerPage> {
                 ),
               ),
               body: CustomScrollView(
-                physics: const BouncingScrollPhysics(),
                 slivers: [
                   SliverAppBar(
                     elevation: 1,

@@ -30,7 +30,8 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
           {
             "gender": selectedGender,
             "shape": selectedFirstShape,
-          }
+          },
+          {}
         ];
       } else {
         selectedGender = "Others";
@@ -61,7 +62,6 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
   Widget build(BuildContext context) {
     Map<String, List<String>> _styleOptions = {};
     Provider.of<AllProvider>(context).baseBodyShape.forEach((key, value) {
-      print(value);
       List<String> list = [];
 
       value.forEach((e) {
@@ -69,13 +69,6 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
       });
       _styleOptions[key] = list;
     });
-    selectedGender = Provider.of<AllProvider>(context).gender;
-    if (Provider.of<AllProvider>(context).bodyShape.isEmpty) {
-      setState(() {
-        selectedFirstShape = '';
-        selectedSecondShape = '';
-      });
-    }
     List<Widget> genderSelection() {
       return [
         Column(
@@ -116,10 +109,7 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
                   .map((e) => GestureDetector(
                         onTap: () {
                           setState(() {
-                            if (selectedFirstShape == e) {
-                              selectedFirstShape = '';
-                            } else
-                              selectedFirstShape = e;
+                            selectedFirstShape = e;
 
                             bodyShape = [
                               {
@@ -194,19 +184,16 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
                   .map((e) => GestureDetector(
                         onTap: () {
                           setState(() {
-                            if (selectedSecondShape == e) {
-                              selectedSecondShape = '';
-                            } else
-                              selectedSecondShape = e;
+                            selectedSecondShape = e;
 
                             bodyShape = [
                               {
-                                "gender": "female",
-                                "shape": selectedSecondShape,
-                              },
-                              {
                                 "gender": "male",
                                 "shape": selectedFirstShape,
+                              },
+                              {
+                                "gender": "female",
+                                "shape": selectedSecondShape,
                               },
                             ];
                             Provider.of<AllProvider>(context, listen: false)
@@ -250,22 +237,17 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
           .map((e) => GestureDetector(
                 onTap: () {
                   setState(() {
-                    if (selectedFirstShape == e) {
-                      selectedFirstShape = '';
-                    } else
-                      selectedFirstShape = e;
+                    selectedFirstShape = e;
 
                     bodyShape = [
                       {
                         "gender": selectedGender,
                         "shape": selectedFirstShape,
-                      }
+                      },
+                      {}
                     ];
                     Provider.of<AllProvider>(context, listen: false)
                         .updateBodyShape(bodyShape);
-
-                    print(Provider.of<AllProvider>(context, listen: false)
-                        .bodyShape);
                   });
                 },
                 child: Container(
@@ -275,14 +257,14 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,
-                      color: selectedFirstShape.contains(e)
+                      color: selectedFirstShape == e
                           ? Colors.white
                           : Colors.black54,
                     ),
                   ),
                   decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.black12),
-                      color: selectedFirstShape.contains(e)
+                      color: selectedFirstShape == e
                           ? Colors.black87
                           : Colors.white,
                       borderRadius: BorderRadius.circular(2)),
@@ -292,53 +274,65 @@ class _BodyShapeSectionState extends State<BodyShapeSection> {
           .toList();
     }
 
-    return Card(
-      shape: RoundedRectangleBorder(
-          borderRadius: isExpanded
-              ? BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                )
-              : BorderRadius.zero),
-      child: ExpansionTileCard(
-        onExpansionChanged: (value) {
-          setState(() {
-            isExpanded = value;
-          });
-        },
-        animateTrailing: selectedGender == null,
-        trailing: selectedGender == null
-            ? Icon(Icons.arrow_drop_down)
-            : Text(
-                '$selectedGender',
-                style: TextStyle(
-                    color: Colors.black54, fontWeight: FontWeight.w300),
-              ),
-        baseColor: Colors.white,
-        expandedColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Body Shape',
-          style: TextStyle(fontSize: 14),
-        ),
-        children: selectedGender == 'Others'
-            ? genderSelection()
-            : [
-                selectedGender == null
-                    ? SizedBox(height: 0)
-                    : GridView.count(
-                        physics: NeverScrollableScrollPhysics(),
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 10,
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 20)
-                            .copyWith(bottom: 20),
-                        crossAxisSpacing: 20,
-                        childAspectRatio: 2.5,
-                        children: children(),
-                      ),
-              ],
-      ),
+    return Consumer<AllProvider>(
+      builder: (context, provider, child) {
+        selectedGender = provider.gender;
+        if (selectedGender == "Others") {
+          selectedFirstShape = provider.bodyShape[0]["shape"];
+          selectedSecondShape = provider.bodyShape[1]["shape"];
+        } else {
+          selectedFirstShape = provider.bodyShape[0]["shape"] ?? '';
+          selectedSecondShape = provider.bodyShape[1]["shape"] ?? '';
+        }
+        return Card(
+          shape: RoundedRectangleBorder(
+              borderRadius: isExpanded
+                  ? BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    )
+                  : BorderRadius.zero),
+          child: ExpansionTileCard(
+            onExpansionChanged: (value) {
+              setState(() {
+                isExpanded = value;
+              });
+            },
+            animateTrailing: selectedGender == null,
+            trailing: selectedGender == null
+                ? Icon(Icons.arrow_drop_down)
+                : Text(
+                    '$selectedGender',
+                    style: TextStyle(
+                        color: Colors.black54, fontWeight: FontWeight.w300),
+                  ),
+            baseColor: Colors.white,
+            expandedColor: Colors.white,
+            elevation: 0,
+            title: Text(
+              'Body Shape',
+              style: TextStyle(fontSize: 14),
+            ),
+            children: selectedGender == 'Others'
+                ? genderSelection()
+                : [
+                    selectedGender == null
+                        ? SizedBox(height: 0)
+                        : GridView.count(
+                            physics: NeverScrollableScrollPhysics(),
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 10,
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.symmetric(horizontal: 20)
+                                .copyWith(bottom: 20),
+                            crossAxisSpacing: 20,
+                            childAspectRatio: 2.5,
+                            children: children(),
+                          ),
+                  ],
+          ),
+        );
+      },
     );
   }
 }

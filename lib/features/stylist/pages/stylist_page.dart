@@ -174,7 +174,7 @@ class _StylistPageState extends State<StylistPage> {
               ),
             ),
             body: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
+              // physics: const BouncingScrollPhysics(),
               slivers: [
                 SliverAppBar(
                   elevation: 1,

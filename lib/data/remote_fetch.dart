@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:grroom/models/influencer.dart';
 import 'package:grroom/models/stylist.dart';
@@ -15,14 +16,16 @@ class RemoteFetch {
     var resp = await http.get(_endpoint,
         headers: {HttpHeaders.authorizationHeader: "Bearer $headerToken"});
 
-    var data = jsonDecode(resp.body)["data"];
+    {
+      var data = jsonDecode(resp.body)["data"];
 
-    List<Influencer> influencers = [];
+      List<Influencer> influencers = [];
 
-    data.forEach((inf) {
-      influencers.add(Influencer.fromResp(inf));
-    });
-    return influencers.reversed.toList();
+      data.forEach((inf) {
+        influencers.add(Influencer.fromResp(inf));
+      });
+      return influencers.reversed.toList();
+    }
   }
 
   static Future<bool> getConstants({AllProvider provider}) async {
@@ -67,26 +70,27 @@ class RemoteFetch {
   }
 
   static Future<List<Stylist>> getAllStylists() async {
-    String headerToken = await FlutterSecureStorage().read(key: "token");
+    String headerToken =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjBmODc3M2NiOTgzMDAxNzA0MDM5OCIsImlhdCI6MTYwNjczNjcxNiwiZXhwIjoxNjE0NTEyNzE2fQ.4L_YPd7ZIdF8RKsLceSoTv4MfQ99JNEUy2YrbhN8k8M";
+    Dio dio = Dio();
+    dio.options.headers = {
+      HttpHeaders.authorizationHeader: "Bearer $headerToken",
+      HttpHeaders.contentTypeHeader: 'application/json'
+    };
 
-    String _endpoint = "https://groombackend.herokuapp.com/api/v1/meta";
-    var resp = await http.get(_endpoint, headers: {
-      HttpHeaders.authorizationHeader: "Bearer $headerToken"
-    }).catchError((onError) {
-      print(onError.toString());
+    String _endpoint = "https://groombackend.herokuapp.com/api/v1/meta/";
+
+    var resp = await dio.get(_endpoint);
+    print(resp.data["data"]);
+
+    final data = resp.data["data"] ?? [];
+
+    List<Stylist> stylists = [];
+
+    data.forEach((stylist) {
+      stylists.add(Stylist.fromJson(stylist));
     });
 
-    if (resp.statusCode != 201 || resp.statusCode != 200) {
-      return [];
-    } else {
-      var data = jsonDecode(resp.body)["data"];
-
-      List<Stylist> stylists = [];
-
-      data.forEach((stylist) {
-        stylists.add(Stylist.fromJson(stylist));
-      });
-      return stylists.reversed.toList();
-    }
+    return stylists.reversed.toList();
   }
 }

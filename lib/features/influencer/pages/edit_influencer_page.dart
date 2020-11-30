@@ -41,10 +41,6 @@ class _EditInfluencerPageState extends State<EditInfluencerPage> {
   }
 
   List<Widget> listOfWidgets(Influencer influencer) => [
-        NameSection(
-          firstName: influencer.firstName,
-          lastName: influencer.lastName,
-        ),
         InstagramHandleSection(
           igHandle: influencer.igUsername,
         ),

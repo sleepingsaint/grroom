@@ -214,7 +214,7 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                                             tag: influencers[index].id,
                                             child: ClipRRect(
                                               child: Image.asset(
-                                                "assets/designer.jpg",
+                                                "assets/no_image.jpg",
                                                 height: 50,
                                                 width: 50,
                                                 fit: BoxFit.cover,
@@ -223,15 +223,23 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                                                   BorderRadius.circular(100),
                                             ),
                                           )
-                                        : ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
-                                            child: CachedNetworkImage(
-                                              imageUrl:
-                                                  influencers[index].image,
-                                              height: 50,
-                                              width: 50,
-                                              fit: BoxFit.cover,
+                                        : Hero(
+                                            tag: influencers[index].id,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(100),
+                                              child: CachedNetworkImage(
+                                                errorWidget:
+                                                    (context, url, error) {
+                                                  return Image.asset(
+                                                      'assets/no_image.jpg');
+                                                },
+                                                imageUrl:
+                                                    influencers[index].image,
+                                                height: 50,
+                                                width: 50,
+                                                fit: BoxFit.cover,
+                                              ),
                                             ),
                                           ),
                                   ),

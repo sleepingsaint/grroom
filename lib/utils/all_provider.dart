@@ -18,7 +18,7 @@ class AllProvider extends ChangeNotifier {
   List<String> _seasonsOption = [];
   List<String> _eventsOption = [];
   Map<String, dynamic> _stylesOption = {};
-  List<Map<String, dynamic>> _bodyShape = [];
+  List<Map<String, dynamic>> _bodyShape = [{}, {}];
   String _typeOption = '';
   String _location = '';
   String _stylistPageImage = '';
@@ -238,7 +238,7 @@ class AllProvider extends ChangeNotifier {
     _seasonsOption = [];
     _eventsOption = [];
     _stylesOption = {};
-    _bodyShape = [];
+    _bodyShape = [{}, {}];
     _typeOption = '';
     _location = '';
     _stylistPageImage = '';

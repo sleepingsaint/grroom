@@ -33,15 +33,11 @@ class _ISubmitButtonState extends State<ISubmitButton> {
     isImageDifferent = _provider.influencerPageImage != widget.networkImage;
 
     bool isAllOptionsChosen = (_provider.igHandle.isNotEmpty &&
-            _provider.firstName.isNotEmpty &&
             _provider.influencerPageImage.isNotEmpty &&
-            _provider.lastName.isNotEmpty &&
             _provider.followerCount != 0 &&
             _provider.counrty.isNotEmpty &&
             _provider.bodySize.isNotEmpty &&
-            _provider.bodyShape.isNotEmpty &&
-            _provider.speciality.isNotEmpty &&
-            _provider.underTone.isNotEmpty) ||
+            _provider.bodyShape.isNotEmpty) ||
         widget.isEdit;
 
     return AnimatedContainer(
@@ -58,6 +54,7 @@ class _ISubmitButtonState extends State<ISubmitButton> {
             side: BorderSide(color: Colors.black87, width: 2),
             borderRadius: BorderRadius.circular(5)),
         onPressed: () {
+          print(_provider.counrty.isNotEmpty);
           if (isLoading) {
           } else if (isAllOptionsChosen) {
             submitData(context);

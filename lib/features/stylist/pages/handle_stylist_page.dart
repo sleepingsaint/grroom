@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -199,30 +200,25 @@ class _HandleStylistPageState extends State<HandleStylistPage>
                                   },
                                 )),
                                 leading: CircleAvatar(
-                                  radius: 26,
-                                  backgroundColor: Colors.black87,
-                                  child: stylists[index].image.isEmpty
-                                      ? ClipRRect(
-                                          child: Image.asset(
-                                            "assets/designer.jpg",
-                                            height: 50,
-                                            width: 50,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                        )
-                                      : ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          child: Image.network(
-                                            stylists[index].image,
-                                            height: 50,
-                                            width: 50,
-                                            fit: BoxFit.cover,
-                                          ),
+                                    radius: 26,
+                                    backgroundColor: Colors.black87,
+                                    child: Hero(
+                                      tag: stylists[index].image,
+                                      child: ClipRRect(
+                                        child: CachedNetworkImage(
+                                          imageUrl: stylists[index].image,
+                                          errorWidget: (context, url, error) {
+                                            return Image.asset(
+                                                'assets/no_image.jpg');
+                                          },
+                                          height: 50,
+                                          width: 50,
+                                          fit: BoxFit.cover,
                                         ),
-                                ),
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                      ),
+                                    )),
                                 title: Text(stylists[index].id),
                                 subtitle: Row(
                                   crossAxisAlignment: CrossAxisAlignment.end,

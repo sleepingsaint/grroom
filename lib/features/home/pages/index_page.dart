@@ -128,10 +128,6 @@ class IndexPageState extends State<IndexPage> {
       },
       child: FutureBuilder(
         future: _future,
-        initialData: [
-          List.generate(1, (index) => Influencer.empty()),
-          List.generate(1, (index) => Stylist.empty()),
-        ],
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {
             return Text(snapshot.error.toString());
@@ -175,7 +171,7 @@ class IndexPageState extends State<IndexPage> {
                                 );
                               },
                             ))),
-                    body: snapshot.data[0][0].id.isEmpty
+                    body: !snapshot.hasData
                         ? SpinKitPouringHourglass(
                             color: Colors.black87,
                             size: 20,

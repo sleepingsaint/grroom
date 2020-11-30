@@ -41,6 +41,12 @@ class _StyleBuilderState extends State<StyleBuilder> {
             .updateStyles(widget.styleBody);
       });
     }
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      selectedStyle = Provider.of<AllProvider>(context, listen: false)
+          .stylesOption["category"];
+      selectedSubStyle = Provider.of<AllProvider>(context, listen: false)
+          .stylesOption["value"];
+    });
     super.initState();
   }
 
@@ -95,120 +101,127 @@ class _StyleBuilderState extends State<StyleBuilder> {
           .toList();
     }
 
-    return Card(
-      shape: RoundedRectangleBorder(
-          borderRadius: isExpanded
-              ? BorderRadius.only(
-                  bottomLeft: Radius.circular(10),
-                  bottomRight: Radius.circular(10),
-                )
-              : BorderRadius.zero),
-      child: ExpansionTileCard(
-        onExpansionChanged: (value) {
-          setState(() {
-            isExpanded = value;
-          });
-        },
-        animateTrailing: selectedStyle == null,
-        trailing: selectedStyle == null
-            ? Icon(Icons.arrow_drop_down)
-            : Text(
-                _styleOptions[selectedStyle].contains(selectedSubStyle)
-                    ? '$selectedStyle'
-                    : '$selectedStyle : ${selectedStylesString()}',
-                style: TextStyle(
-                    color: Colors.black54, fontWeight: FontWeight.w300),
+    return Consumer<AllProvider>(
+      builder: (context, value, child) {
+        selectedStyle = value.stylesOption["category"];
+        selectedSubStyle = value.stylesOption["value"];
+        return Card(
+          shape: RoundedRectangleBorder(
+              borderRadius: isExpanded
+                  ? BorderRadius.only(
+                      bottomLeft: Radius.circular(10),
+                      bottomRight: Radius.circular(10),
+                    )
+                  : BorderRadius.zero),
+          child: ExpansionTileCard(
+            onExpansionChanged: (value) {
+              setState(() {
+                isExpanded = value;
+              });
+            },
+            animateTrailing: selectedStyle == null,
+            trailing: selectedStyle == null
+                ? Icon(Icons.arrow_drop_down)
+                : Text(
+                    _styleOptions[selectedStyle].contains(selectedSubStyle)
+                        ? '$selectedStyle'
+                        : '$selectedStyle : ${selectedStylesString()}',
+                    style: TextStyle(
+                        color: Colors.black54, fontWeight: FontWeight.w300),
+                  ),
+            baseColor: Colors.white,
+            expandedColor: Colors.white,
+            elevation: 0,
+            title: Text(
+              'Styles',
+              style: TextStyle(fontSize: 14),
+            ),
+            children: [
+              GridView.count(
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: 3,
+                mainAxisSpacing: 10,
+                shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 20)
+                    .copyWith(bottom: 20),
+                crossAxisSpacing: 20,
+                childAspectRatio: 3,
+                children: _mainStyles
+                    .map((e) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedStyle = e;
+                              selectedSubStyle = [];
+                              styleBody["category"] = selectedStyle;
+                              styleBody["value"] = selectedSubStyle;
+                              Provider.of<AllProvider>(context, listen: false)
+                                  .updateStyles(styleBody);
+                            });
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              e,
+                              style: TextStyle(
+                                  color: selectedStyle == e
+                                      ? Colors.white
+                                      : Colors.black54),
+                            ),
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 1, color: Colors.black12),
+                                color: selectedStyle == e
+                                    ? Colors.black87
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(2)),
+                          ),
+                        ))
+                    .toList(),
               ),
-        baseColor: Colors.white,
-        expandedColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Styles',
-          style: TextStyle(fontSize: 14),
-        ),
-        children: [
-          GridView.count(
-            physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: 3,
-            mainAxisSpacing: 10,
-            shrinkWrap: true,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20).copyWith(bottom: 20),
-            crossAxisSpacing: 20,
-            childAspectRatio: 3,
-            children: _mainStyles
-                .map((e) => GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedStyle = e;
-                          selectedSubStyle = [];
-                          styleBody["category"] = selectedStyle;
-                          styleBody["value"] = selectedSubStyle;
-                          Provider.of<AllProvider>(context, listen: false)
-                              .updateStyles(styleBody);
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          e,
-                          style: TextStyle(
-                              color: selectedStyle == e
-                                  ? Colors.white
-                                  : Colors.black54),
-                        ),
-                        decoration: BoxDecoration(
-                            border: Border.all(width: 1, color: Colors.black12),
-                            color: selectedStyle == e
-                                ? Colors.black87
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(2)),
-                      ),
-                    ))
-                .toList(),
-          ),
-          selectedStyle == null
-              ? SizedBox(height: 0)
-              : Column(
-                  children: [
-                    Row(
+              selectedStyle == null
+                  ? SizedBox(height: 0)
+                  : Column(
                       children: [
-                        Expanded(
-                          child: Divider(
-                            endIndent: 10,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                endIndent: 10,
+                              ),
+                            ),
+                            Text(
+                              'Sub-styles',
+                              style: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.w200),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                indent: 10,
+                                color: Colors.black12,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          'Sub-styles',
-                          style: TextStyle(
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w200),
+                        SizedBox(
+                          height: 10,
                         ),
-                        Expanded(
-                          child: Divider(
-                            indent: 10,
-                            color: Colors.black12,
-                          ),
-                        ),
+                        GridView.count(
+                            physics: NeverScrollableScrollPhysics(),
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 10,
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.symmetric(horizontal: 20)
+                                .copyWith(bottom: 20),
+                            crossAxisSpacing: 20,
+                            childAspectRatio: 2.5,
+                            children: children()),
                       ],
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    GridView.count(
-                        physics: NeverScrollableScrollPhysics(),
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 10,
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.symmetric(horizontal: 20)
-                            .copyWith(bottom: 20),
-                        crossAxisSpacing: 20,
-                        childAspectRatio: 2.5,
-                        children: children()),
-                  ],
-                ),
-        ],
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

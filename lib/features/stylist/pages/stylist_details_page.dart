@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:grroom/core/globals.dart';
@@ -18,9 +19,9 @@ class _StylistDetailsPageState extends State<StylistDetailsPage> {
     final Stylist stylist = widget.stylist;
     Widget tablechild({String title, subtitle, String gender}) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
             children: [
               gender == null
                   ? Container()
@@ -238,15 +239,22 @@ class _StylistDetailsPageState extends State<StylistDetailsPage> {
                     children: [
                       Card(
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(1000)),
-                      ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(1000),
-                        child: Image.network(
-                          stylist.image,
-                          height: 190,
-                          width: 190,
-                          fit: BoxFit.cover,
+                          borderRadius: BorderRadius.circular(1000),
+                        ),
+                        child: Hero(
+                          tag: stylist.image,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(1000),
+                            child: CachedNetworkImage(
+                              imageUrl: stylist.image,
+                              height: 190,
+                              width: 190,
+                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) {
+                                return Image.asset('assets/no_image.jpg');
+                              },
+                            ),
+                          ),
                         ),
                       ),
                     ],

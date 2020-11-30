@@ -44,7 +44,6 @@ class _SubmitButtonState extends State<SubmitButton> {
         _provider.stylesOption.isNotEmpty &&
         _provider.eventsOption.isNotEmpty &&
         _provider.location.isNotEmpty &&
-        _provider.location.isNotEmpty &&
         _provider.typeOption.isNotEmpty);
 
     return AnimatedContainer(
@@ -61,6 +60,7 @@ class _SubmitButtonState extends State<SubmitButton> {
             side: BorderSide(color: Colors.black87, width: 2),
             borderRadius: BorderRadius.circular(5)),
         onPressed: () {
+          print(_provider.influencerCode.isNotEmpty);
           if (isLoading) {
           } else if (isAllOptionsChosen) {
             submitData(context);
