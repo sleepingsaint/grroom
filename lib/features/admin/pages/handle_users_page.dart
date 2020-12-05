@@ -3,6 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:grroom/data/remote_fetch.dart';
+import 'package:grroom/features/stylist/pages/handle_stylist_page.dart';
+import 'package:grroom/models/stylist.dart';
 import 'package:grroom/models/user.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,6 +23,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   List<UserModel> allUsers = [];
   List<UserModel> verifiedUsers = [];
   List<UserModel> deletedUsers = [];
+  bool isLoading = false;
 
   Future<void> getToken() async {
     token = await FlutterSecureStorage().read(key: 'token');
@@ -61,102 +66,10 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
       physics: const BouncingScrollPhysics(),
       itemCount: users.length,
       itemBuilder: (context, index) {
-        return showDismissible
-            ? Dismissible(
-                key: Key(index.toString()),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                      color: users[index].isVerified
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.black12),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.white, width: 2)),
-                    color: users[index].isVerified
-                        ? Colors.green.withOpacity(0.5)
-                        : Colors.black12,
-                    elevation: 2,
-                    child: ListTile(
-                      title: Text(
-                        "${users[index].firstName} ${users[index].lastName}",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      subtitle: Text(
-                        "${users[index].email}",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      trailing: showDelete
-                          ? IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                size: 16,
-                                color: Colors.black26,
-                              ),
-                              onPressed: () {
-                                deleteUser(users[index].id, index);
-                              })
-                          : OutlineButton(
-                              onPressed: () {
-                                restoreUser(users[index].id, index);
-                              },
-                              child: Text(
-                                'Restore',
-                                style: TextStyle(
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14),
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-                onDismissed: (dir) => activateUser(dir, users[index].id, index),
-                background: Container(
-                  padding: const EdgeInsets.only(left: 20),
-                  alignment: Alignment.centerLeft,
-                  color: Colors.green[400],
-                  child: Row(
-                    children: [
-                      Text(
-                        'Accept',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w300),
-                      ),
-                      SizedBox(
-                        width: 2,
-                      ),
-                      Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ],
-                  ),
-                ),
-                secondaryBackground: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Reject',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w300),
-                      ),
-                      SizedBox(
-                        width: 2,
-                      ),
-                      Icon(
-                        Icons.cancel,
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ],
-                  ),
-                  color: Colors.red[500],
-                ))
-            : DecoratedBox(
+        if (showDismissible) {
+          return Dismissible(
+              key: Key(index.toString()),
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                     color: users[index].isVerified
                         ? Colors.green.withOpacity(0.1)
@@ -169,6 +82,27 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
                       : Colors.black12,
                   elevation: 2,
                   child: ListTile(
+                    onTap: () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      List<Stylist> stylists =
+                          await RemoteFetch.getParticularMeta(
+                              id: users[index].id);
+
+                      setState(() {
+                        isLoading = false;
+                      });
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => HandleStylistPage(
+                            stylistsList: stylists,
+                          ),
+                        ),
+                      );
+                    },
                     title: Text(
                       "${users[index].firstName} ${users[index].lastName}",
                       style: TextStyle(color: Colors.white),
@@ -201,7 +135,101 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
                           ),
                   ),
                 ),
-              );
+              ),
+              onDismissed: (dir) => activateUser(dir, users[index].id, index),
+              background: Container(
+                padding: const EdgeInsets.only(left: 20),
+                alignment: Alignment.centerLeft,
+                color: Colors.green[400],
+                child: Row(
+                  children: [
+                    Text(
+                      'Accept',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w300),
+                    ),
+                    SizedBox(
+                      width: 2,
+                    ),
+                    Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ],
+                ),
+              ),
+              secondaryBackground: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Reject',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w300),
+                    ),
+                    SizedBox(
+                      width: 2,
+                    ),
+                    Icon(
+                      Icons.cancel,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ],
+                ),
+                color: Colors.red[500],
+              ));
+        } else {
+          return DecoratedBox(
+            decoration: BoxDecoration(
+                color: users[index].isVerified
+                    ? Colors.green.withOpacity(0.1)
+                    : Colors.black12),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(color: Colors.white, width: 2)),
+              color: users[index].isVerified
+                  ? Colors.green.withOpacity(0.5)
+                  : Colors.black12,
+              elevation: 2,
+              child: ListTile(
+                title: Text(
+                  "${users[index].firstName} ${users[index].lastName}",
+                  style: TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  "${users[index].email}",
+                  style: TextStyle(color: Colors.white),
+                ),
+                trailing: showDelete
+                    ? IconButton(
+                        icon: Icon(
+                          Icons.delete,
+                          size: 16,
+                          color: Colors.black26,
+                        ),
+                        onPressed: () {
+                          deleteUser(users[index].id, index);
+                        })
+                    : OutlineButton(
+                        onPressed: () {
+                          restoreUser(users[index].id, index);
+                        },
+                        child: Text(
+                          'Restore',
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14),
+                        ),
+                      ),
+              ),
+            ),
+          );
+        }
       },
     );
   }
@@ -272,6 +300,15 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
                   ),
                 ],
               ),
+              isLoading
+                  ? Container(
+                      color: Colors.black12,
+                      child: SpinKitPouringHourglass(
+                        color: Colors.black87,
+                        size: 20,
+                      ),
+                    )
+                  : SizedBox.shrink()
             ],
           )),
     );

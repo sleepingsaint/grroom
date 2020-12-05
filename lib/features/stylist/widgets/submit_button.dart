@@ -43,7 +43,6 @@ class _SubmitButtonState extends State<SubmitButton> {
         _provider.stylistPageImage.isNotEmpty &&
         _provider.stylesOption.isNotEmpty &&
         _provider.eventsOption.isNotEmpty &&
-        _provider.location.isNotEmpty &&
         _provider.typeOption.isNotEmpty);
 
     return AnimatedContainer(

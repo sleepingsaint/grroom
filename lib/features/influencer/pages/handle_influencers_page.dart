@@ -1,16 +1,16 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grroom/data/remote_fetch.dart';
-import 'package:grroom/features/stylist/widgets/feedback_dialog.dart';
 import 'package:grroom/features/stylist/widgets/simple_dialog.dart';
+import 'package:grroom/main.dart';
 import 'package:grroom/models/influencer.dart';
 import 'package:http/http.dart' as http;
 
@@ -34,6 +34,7 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
   Animation topAnimation;
   List<Influencer> influencers = [];
   bool isLoading = false;
+  bool isAdmin = false;
 
   @override
   void initState() {
@@ -46,6 +47,11 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
         CurvedAnimation(
             parent: topAnimationController, curve: Curves.easeOutExpo));
     super.initState();
+    FlutterSecureStorage().read(key: 'role').then((value) {
+      setState(() {
+        isAdmin = value == 'admin';
+      });
+    });
   }
 
   @override
@@ -95,6 +101,62 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                 slivers: [
                   SliverAppBar(
                     elevation: 1,
+                    leading: IconButton(
+                      icon: Transform.rotate(
+                        angle: pi,
+                        child: FaIcon(
+                          FontAwesomeIcons.signOutAlt,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () async {
+                        showCupertinoDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CupertinoAlertDialog(
+                              content: Text(
+                                'Are you sure you want to logout',
+                                style: Theme.of(context).textTheme.bodyText1,
+                              ),
+                              title: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  'Warning',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1
+                                      .copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15),
+                                ),
+                              ),
+                              actions: <Widget>[
+                                CupertinoButton(
+                                    child: Text('No'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    }),
+                                CupertinoButton(
+                                    child: Text('Yes'),
+                                    onPressed: () async {
+                                      await FlutterSecureStorage()
+                                          .delete(key: 'token');
+                                      await FlutterSecureStorage()
+                                          .delete(key: 'role');
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => MyHomePage(),
+                                        ),
+                                      );
+                                    }),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
                     backgroundColor: Colors.white,
                     automaticallyImplyLeading: false,
                     stretch: true,
@@ -282,36 +344,39 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                 ],
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-                heroTag: UniqueKey(),
-                mini: true,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                backgroundColor: Colors.black87,
-                child: FaIcon(
-                  FontAwesomeIcons.plus,
-                  size: 12,
-                ),
-                onPressed: () => Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (BuildContext context,
-                          Animation<double> animation,
-                          Animation<double> secondaryAnimation) {
-                        return InfluencerPage();
-                      },
-                      transitionsBuilder: (BuildContext context,
-                          Animation<double> animation,
-                          Animation<double> secondaryAnimation,
-                          Widget child) {
-                        return SlideTransition(
-                          position: new Tween<Offset>(
-                            begin: const Offset(0.0, 1.0),
-                            end: Offset.zero,
-                          ).animate(CurvedAnimation(
-                              parent: animation, curve: Curves.easeIn)),
-                          child: child,
-                        );
-                      },
-                    ))),
+            floatingActionButton: isAdmin
+                ? FloatingActionButton(
+                    heroTag: UniqueKey(),
+                    mini: true,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: Colors.black87,
+                    child: FaIcon(
+                      FontAwesomeIcons.plus,
+                      size: 12,
+                    ),
+                    onPressed: () =>
+                        Navigator.of(context).push(PageRouteBuilder(
+                          pageBuilder: (BuildContext context,
+                              Animation<double> animation,
+                              Animation<double> secondaryAnimation) {
+                            return InfluencerPage();
+                          },
+                          transitionsBuilder: (BuildContext context,
+                              Animation<double> animation,
+                              Animation<double> secondaryAnimation,
+                              Widget child) {
+                            return SlideTransition(
+                              position: new Tween<Offset>(
+                                begin: const Offset(0.0, 1.0),
+                                end: Offset.zero,
+                              ).animate(CurvedAnimation(
+                                  parent: animation, curve: Curves.easeIn)),
+                              child: child,
+                            );
+                          },
+                        )))
+                : null,
           ),
           isLoading
               ? Container(

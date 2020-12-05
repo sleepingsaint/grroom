@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:grroom/data/remote_fetch.dart';
 import 'package:grroom/features/admin/pages/handle_users_page.dart';
 import 'package:grroom/features/influencer/pages/handle_influencers_page.dart';
 import 'package:grroom/features/stylist/pages/handle_stylist_page.dart';
+import 'package:grroom/features/stylist/pages/stylist_page.dart';
 import 'package:grroom/models/influencer.dart';
 import 'package:grroom/models/stylist.dart';
 import 'package:grroom/utils/all_provider.dart';
@@ -25,6 +25,7 @@ class IndexPageState extends State<IndexPage> {
   final ValueNotifier<int> pageNumberNotifier = ValueNotifier<int>(0);
   DateTime currentBackPressTime;
   Future _future;
+  bool isAdmin = false;
 
   final ScrollController scrollController = ScrollController();
 
@@ -46,6 +47,11 @@ class IndexPageState extends State<IndexPage> {
   @override
   void initState() {
     super.initState();
+    FlutterSecureStorage().read(key: 'role').then((value) {
+      setState(() {
+        isAdmin = value == 'admin';
+      });
+    });
   }
 
   @override
@@ -55,7 +61,7 @@ class IndexPageState extends State<IndexPage> {
       RemoteFetch.getAllStylists(),
       RemoteFetch.getConstants(
           provider: Provider.of<AllProvider>(context, listen: false))
-    ]); // TODO: implement didChangeDependencies
+    ]);
     super.didChangeDependencies();
   }
 
@@ -130,7 +136,9 @@ class IndexPageState extends State<IndexPage> {
         future: _future,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
           }
           return ValueListenableBuilder(
               key: UniqueKey(),
@@ -140,37 +148,40 @@ class IndexPageState extends State<IndexPage> {
                   child: Scaffold(
                     floatingActionButtonLocation:
                         FloatingActionButtonLocation.miniStartFloat,
-                    floatingActionButton: FloatingActionButton(
-                        heroTag: UniqueKey(),
-                        mini: true,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        backgroundColor: Colors.black87,
-                        child: FaIcon(
-                          FontAwesomeIcons.userGraduate,
-                          size: 12,
-                        ),
-                        onPressed: () =>
-                            Navigator.of(context).push(PageRouteBuilder(
-                              pageBuilder: (BuildContext context,
-                                  Animation<double> animation,
-                                  Animation<double> secondaryAnimation) {
-                                return HandleUsersPage();
-                              },
-                              transitionsBuilder: (BuildContext context,
-                                  Animation<double> animation,
-                                  Animation<double> secondaryAnimation,
-                                  Widget child) {
-                                return SlideTransition(
-                                  position: new Tween<Offset>(
-                                    begin: const Offset(0.0, 1.0),
-                                    end: Offset.zero,
-                                  ).animate(CurvedAnimation(
-                                      parent: animation, curve: Curves.easeIn)),
-                                  child: child,
-                                );
-                              },
-                            ))),
+                    floatingActionButton: isAdmin
+                        ? FloatingActionButton(
+                            heroTag: UniqueKey(),
+                            mini: true,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: Colors.black87,
+                            child: FaIcon(
+                              FontAwesomeIcons.userGraduate,
+                              size: 12,
+                            ),
+                            onPressed: () =>
+                                Navigator.of(context).push(PageRouteBuilder(
+                                  pageBuilder: (BuildContext context,
+                                      Animation<double> animation,
+                                      Animation<double> secondaryAnimation) {
+                                    return HandleUsersPage();
+                                  },
+                                  transitionsBuilder: (BuildContext context,
+                                      Animation<double> animation,
+                                      Animation<double> secondaryAnimation,
+                                      Widget child) {
+                                    return SlideTransition(
+                                      position: new Tween<Offset>(
+                                        begin: const Offset(0.0, 1.0),
+                                        end: Offset.zero,
+                                      ).animate(CurvedAnimation(
+                                          parent: animation,
+                                          curve: Curves.easeIn)),
+                                      child: child,
+                                    );
+                                  },
+                                )))
+                        : null,
                     body: !snapshot.hasData
                         ? SpinKitPouringHourglass(
                             color: Colors.black87,
@@ -239,7 +250,7 @@ class IndexPageState extends State<IndexPage> {
                                           padding:
                                               const EdgeInsets.only(top: 4),
                                           child: Text(
-                                            'Stylist',
+                                            'Data',
                                             style: TextStyle(
                                               fontSize: 12.0,
                                               color:

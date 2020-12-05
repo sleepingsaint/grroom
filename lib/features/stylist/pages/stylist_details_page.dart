@@ -22,10 +22,12 @@ class _StylistDetailsPageState extends State<StylistDetailsPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Wrap(
+            alignment: WrapAlignment.center,
             children: [
               gender == null
                   ? Container()
                   : Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.network(
@@ -105,29 +107,33 @@ class _StylistDetailsPageState extends State<StylistDetailsPage> {
                   SizedBox(
                     height: 30,
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FaIcon(
-                        FontAwesomeIcons.locationArrow,
-                        color: Colors.black26,
-                        size: 16,
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        stylist.place,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black54),
-                      ),
-                    ],
-                  ),
+                  stylist.place == ''
+                      ? Text('')
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.locationArrow,
+                              color: stylist.place == null
+                                  ? Colors.white
+                                  : Colors.black26,
+                              size: 16,
+                            ),
+                            SizedBox(
+                              width: 8,
+                            ),
+                            Text(
+                              stylist.place,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black54),
+                            ),
+                          ],
+                        ),
                   SizedBox(
                     height: 30,
                   ),
@@ -136,6 +142,7 @@ class _StylistDetailsPageState extends State<StylistDetailsPage> {
                     overflow: Overflow.visible,
                     children: [
                       Container(
+                        alignment: Alignment.center,
                         margin: const EdgeInsets.symmetric(horizontal: 10),
                         padding: const EdgeInsets.symmetric(
                                 vertical: 20, horizontal: 20)
@@ -154,7 +161,9 @@ class _StylistDetailsPageState extends State<StylistDetailsPage> {
                           runSpacing: 20,
                           children: [
                             tablechild(
-                                title: stylist.events.join(","),
+                                title: stylist.events
+                                    .join(",\n\n\u2022 ")
+                                    .replaceFirst('', '\u2022 '),
                                 subtitle: 'Events'),
                             Divider(
                               indent: 50,

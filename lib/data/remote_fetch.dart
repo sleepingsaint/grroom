@@ -28,6 +28,39 @@ class RemoteFetch {
     }
   }
 
+  static Future<List<Stylist>> getParticularMeta({String id}) async {
+    List<Stylist> stylists = [];
+
+    String headerToken = await FlutterSecureStorage().read(key: "token");
+    String role = await FlutterSecureStorage().read(key: "role");
+
+    String _endpoint =
+        "https://groombackend.herokuapp.com/api/v1/user/records/$id";
+    var resp = await http.get(_endpoint, headers: {
+      HttpHeaders.authorizationHeader: "Bearer $headerToken",
+    });
+
+    var data = jsonDecode(resp.body)['data'] ?? [];
+
+    data.forEach((e) {
+      var json = e["file"];
+      stylists.add(Stylist(
+        style: Style.fromJson(json["style"]),
+        location: json['location'].toString(),
+        events: List<String>.from(json["events"].map((x) => x)),
+        season: List<String>.from(json["season"].map((x) => x)),
+        createdAt: DateTime.parse(json["createdAt"]),
+        id: json["_id"],
+        influencerId: json["influencerID"],
+        type: json["type"],
+        place: json["place"],
+        image: json["image"],
+      ));
+    });
+
+    return stylists.reversed.toList();
+  }
+
   static Future<bool> getConstants({AllProvider provider}) async {
     List<String> events = [];
     List<Map<String, dynamic>> styles = [];
@@ -70,8 +103,11 @@ class RemoteFetch {
   }
 
   static Future<List<Stylist>> getAllStylists() async {
-    String headerToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjBmODc3M2NiOTgzMDAxNzA0MDM5OCIsImlhdCI6MTYwNjczNjcxNiwiZXhwIjoxNjE0NTEyNzE2fQ.4L_YPd7ZIdF8RKsLceSoTv4MfQ99JNEUy2YrbhN8k8M";
+    List<Stylist> stylists = [];
+
+    String headerToken = await FlutterSecureStorage().read(key: "token");
+    String role = await FlutterSecureStorage().read(key: "role");
+
     Dio dio = Dio();
     dio.options.headers = {
       HttpHeaders.authorizationHeader: "Bearer $headerToken",
@@ -80,17 +116,41 @@ class RemoteFetch {
 
     String _endpoint = "https://groombackend.herokuapp.com/api/v1/meta/";
 
-    var resp = await dio.get(_endpoint);
-    print(resp.data["data"]);
+    try {
+      var resp = await dio.get(_endpoint);
+      if (resp.statusCode == 404) {
+        return [];
+      } else {
+        print(resp.data["data"]);
 
-    final data = resp.data["data"] ?? [];
+        final data = resp.data["data"] ?? [];
 
-    List<Stylist> stylists = [];
-
-    data.forEach((stylist) {
-      stylists.add(Stylist.fromJson(stylist));
-    });
-
-    return stylists.reversed.toList();
+        if (role == 'user') {
+          data.forEach((e) {
+            var json = e["file"];
+            stylists.add(Stylist(
+              style: Style.fromJson(json["style"]),
+              location: json['location'].toString(),
+              events: List<String>.from(json["events"].map((x) => x)),
+              season: List<String>.from(json["season"].map((x) => x)),
+              createdAt: DateTime.parse(json["createdAt"]),
+              id: json["_id"],
+              influencerId: json["influencerID"],
+              type: json["type"],
+              place: json["place"],
+              image: json["image"],
+            ));
+          });
+        } else {
+          data.forEach((e) {
+            stylists.add(Stylist.fromJson(e));
+          });
+        }
+        return stylists.reversed.toList();
+      }
+    } catch (e) {
+      print(e.error);
+      return [];
+    }
   }
 }

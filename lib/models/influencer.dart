@@ -42,8 +42,14 @@ class Influencer {
         igUsername: resp["igUsername"] ?? "",
         igProfileLink: resp["igProfileLink"] ?? "",
         undertone: resp["undertone"] ?? "",
-        bodyShape: List<Map<String, String>>.from(resp["bodyShape"].map(
-            (x) => Map.from(x).map((k, v) => MapEntry<String, String>(k, v)))),
+        bodyShape: List<Map<String, String>>.from(
+          resp["bodyShape"]?.map(
+                (x) => Map.from(x)?.map(
+                  (k, v) => MapEntry<String, String>(k, v),
+                ),
+              ) ??
+              {},
+        ),
         bodySize: resp["bodySize"] ?? "",
         country: resp["country"] ?? "",
         speciality: resp["speciality"] ?? "",

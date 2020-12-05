@@ -1,13 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flag/flag.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_link_preview/flutter_link_preview.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grroom/features/influencer/pages/edit_influencer_page.dart';
 import 'package:grroom/models/influencer.dart';
-import 'package:grroom/utils/all_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InfluencerDetailsPage extends StatefulWidget {
@@ -19,6 +16,17 @@ class InfluencerDetailsPage extends StatefulWidget {
 }
 
 class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
+  bool isAdmin = false;
+  @override
+  void initState() {
+    super.initState();
+    FlutterSecureStorage().read(key: 'role').then((value) {
+      setState(() {
+        isAdmin = value == 'admin';
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Influencer influencer = widget.influencer;
@@ -243,15 +251,15 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                                   ),
                                   tablechild(
                                       title: influencer.gender != "Others"
-                                          ? '${influencer.bodyShape[0]["shape"]}'
-                                          : '${influencer.bodyShape[0]["shape"]}, ${influencer.bodyShape[1]["shape"]}',
+                                          ? '${influencer.bodyShape[0]["shape"] ?? ''}'
+                                          : '${influencer.bodyShape[0]["shape"] ?? ''}, ${influencer.bodyShape[1]["shape" ?? '']}',
                                       subtitle: 'Bodyshape'),
                                   Divider(
                                     indent: 50,
                                     endIndent: 50,
                                   ),
                                   tablechild(
-                                      title: influencer.bodySize,
+                                      title: influencer.bodySize ?? 'Bodyshape',
                                       subtitle: 'Bodysize'),
                                 ],
                               ),
@@ -314,56 +322,61 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                           ],
                         ),
                       ),
-                      Positioned(
-                        right: 10,
-                        bottom: 150,
-                        child: Container(
-                          height: 40,
-                          width: 40,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: IconButton(
-                              splashRadius: 25,
-                              icon: FaIcon(
-                                FontAwesomeIcons.userEdit,
-                                size: 12,
+                      isAdmin
+                          ? Positioned(
+                              right: 10,
+                              bottom: 150,
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
+                                child: IconButton(
+                                    splashRadius: 25,
+                                    icon: FaIcon(
+                                      FontAwesomeIcons.userEdit,
+                                      size: 12,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          PageRouteBuilder(
+                                            pageBuilder: (BuildContext context,
+                                                Animation<double> animation,
+                                                Animation<double>
+                                                    secondaryAnimation) {
+                                              return EditInfluencerPage(
+                                                influncer: influencer,
+                                              );
+                                            },
+                                            transitionsBuilder:
+                                                (BuildContext context,
+                                                    Animation<double> animation,
+                                                    Animation<double>
+                                                        secondaryAnimation,
+                                                    Widget child) {
+                                              return FadeTransition(
+                                                opacity: animation,
+                                                child: SlideTransition(
+                                                  position: new Tween<Offset>(
+                                                    begin:
+                                                        const Offset(-1.0, 0.0),
+                                                    end: Offset.zero,
+                                                  ).animate(CurvedAnimation(
+                                                      parent: animation,
+                                                      curve: Curves.easeIn)),
+                                                  child: child,
+                                                ),
+                                              );
+                                            },
+                                          ));
+                                    }),
                               ),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (BuildContext context,
-                                          Animation<double> animation,
-                                          Animation<double>
-                                              secondaryAnimation) {
-                                        return EditInfluencerPage(
-                                          influncer: influencer,
-                                        );
-                                      },
-                                      transitionsBuilder: (BuildContext context,
-                                          Animation<double> animation,
-                                          Animation<double> secondaryAnimation,
-                                          Widget child) {
-                                        return FadeTransition(
-                                          opacity: animation,
-                                          child: SlideTransition(
-                                            position: new Tween<Offset>(
-                                              begin: const Offset(-1.0, 0.0),
-                                              end: Offset.zero,
-                                            ).animate(CurvedAnimation(
-                                                parent: animation,
-                                                curve: Curves.easeIn)),
-                                            child: child,
-                                          ),
-                                        );
-                                      },
-                                    ));
-                              }),
-                        ),
-                      )
+                            )
+                          : SizedBox.shrink()
                     ],
                   ),
                   Text(
