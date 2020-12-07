@@ -87,23 +87,20 @@ class _InfluencerPageState extends State<InfluencerPage> {
                     ],
                   )),
           ),
-          secondChild: LimitedBox(
-            maxHeight: 100,
-            child: Stack(
-              fit: StackFit.expand,
-              alignment: Alignment.bottomCenter,
-              children: [
-                _image != null
-                    ? Image.file(
-                        File(_image?.path),
-                        fit: BoxFit.contain,
-                      )
-                    : Container(
-                        height: 50,
-                        width: 50,
-                      ),
-              ],
-            ),
+          secondChild: Stack(
+            fit: StackFit.expand,
+            alignment: Alignment.bottomCenter,
+            children: [
+              _image != null
+                  ? Image.file(
+                      File(_image?.path),
+                      fit: BoxFit.contain,
+                    )
+                  : Container(
+                      height: 50,
+                      width: 50,
+                    ),
+            ],
           ),
           crossFadeState: _image == null
               ? CrossFadeState.showFirst

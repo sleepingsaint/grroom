@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:grroom/features/influencer/pages/edit_influencer_page.dart';
+import 'package:grroom/features/influencer/pages/full_screen_image_page.dart';
 import 'package:grroom/models/influencer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -250,9 +251,11 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                                     endIndent: 50,
                                   ),
                                   tablechild(
-                                      title: influencer.gender != "Others"
-                                          ? '${influencer.bodyShape[0]["shape"] ?? ''}'
-                                          : '${influencer.bodyShape[0]["shape"] ?? ''}, ${influencer.bodyShape[1]["shape" ?? '']}',
+                                      title: influencer.bodyShape.isNotEmpty
+                                          ? influencer.gender != "Others"
+                                              ? '${influencer.bodyShape[0]["shape"] ?? ''}'
+                                              : '${influencer.bodyShape[0]["shape"] ?? ''}, ${influencer.bodyShape[1]["shape" ?? '']}'
+                                          : 'null',
                                       subtitle: 'Bodyshape'),
                                   Divider(
                                     indent: 50,
@@ -294,18 +297,51 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(1000)),
                             ),
-                            Hero(
-                              tag: influencer.id,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(1000),
-                                child: CachedNetworkImage(
-                                  imageUrl: influencer.image,
-                                  errorWidget: (context, url, error) {
-                                    return Image.asset('assets/no_image.jpg');
-                                  },
-                                  height: 190,
-                                  width: 190,
-                                  fit: BoxFit.cover,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (BuildContext context,
+                                          Animation<double> animation,
+                                          Animation<double>
+                                              secondaryAnimation) {
+                                        return FullScreenImagePreview(
+                                          img: influencer.image,
+                                          animation: animation,
+                                        );
+                                      },
+                                      transitionDuration:
+                                          const Duration(milliseconds: 200),
+                                      transitionsBuilder: (BuildContext context,
+                                          Animation<double> animation,
+                                          Animation<double> secondaryAnimation,
+                                          Widget child) {
+                                        return SlideTransition(
+                                          position: new Tween<Offset>(
+                                            begin: const Offset(-1.0, 0.0),
+                                            end: Offset.zero,
+                                          ).animate(CurvedAnimation(
+                                              parent: animation,
+                                              curve: Curves.easeIn)),
+                                          child: child,
+                                        );
+                                      },
+                                    ));
+                              },
+                              child: Hero(
+                                tag: influencer.id,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(1000),
+                                  child: CachedNetworkImage(
+                                    imageUrl: influencer.image,
+                                    errorWidget: (context, url, error) {
+                                      return Image.asset('assets/no_image.jpg');
+                                    },
+                                    height: 190,
+                                    width: 190,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                               ),
                             ),

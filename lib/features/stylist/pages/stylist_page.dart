@@ -36,10 +36,19 @@ class _StylistPageState extends State<StylistPage> {
   PickedFile _image;
   List<Widget> listItems = <Widget>[];
   int _imageHeight;
+  ScrollController _controller;
 
   @override
   void initState() {
+    _controller = ScrollController()..addListener(() {});
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,6 +64,7 @@ class _StylistPageState extends State<StylistPage> {
           _image = _pickedImage;
           final image = File(_image?.path);
           var decodedImage = await decodeImageFromList(image.readAsBytesSync());
+
           setState(() {
             _imageHeight = decodedImage.height;
           });
@@ -90,63 +100,20 @@ class _StylistPageState extends State<StylistPage> {
                     ],
                   )),
           ),
-          secondChild: LimitedBox(
-            maxHeight: 100,
-            child: Stack(
-              fit: StackFit.expand,
-              alignment: Alignment.bottomCenter,
-              children: [
-                _image != null
-                    ? Image.file(
-                        File(_image?.path),
-                        fit: BoxFit.contain,
-                      )
-                    : Container(
-                        height: 50,
-                        width: 50,
-                      ),
-                AnimatedList(
-                  shrinkWrap: true,
-                  key: backgroundKey,
-                  initialItemCount: stringList.length,
-                  itemBuilder: (context, index, animation) {
-                    return FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: animation.drive(
-                            Tween(begin: Offset(-2, 0), end: Offset.zero)),
-                        child: Container(
-                          width: 10,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: Colors.black12),
-                          margin: const EdgeInsets.all(20),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.add,
-                                size: 10,
-                                color: Colors.black,
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                              Text(
-                                stringList[index],
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 12,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+          secondChild: Stack(
+            fit: StackFit.expand,
+            alignment: Alignment.bottomCenter,
+            children: [
+              _image != null
+                  ? Image.file(
+                      File(_image?.path),
+                      fit: BoxFit.contain,
+                    )
+                  : Container(
+                      height: 50,
+                      width: 50,
+                    ),
+            ],
           ),
           crossFadeState: _image == null
               ? CrossFadeState.showFirst
@@ -182,6 +149,7 @@ class _StylistPageState extends State<StylistPage> {
               ),
             ),
             body: CustomScrollView(
+              controller: _controller,
               // physics: const BouncingScrollPhysics(),
               slivers: [
                 SliverAppBar(
