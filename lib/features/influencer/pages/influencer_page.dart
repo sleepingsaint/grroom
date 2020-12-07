@@ -26,6 +26,7 @@ class InfluencerPage extends StatefulWidget {
 class _InfluencerPageState extends State<InfluencerPage> {
   PickedFile _image;
   List<Widget> listItems = <Widget>[];
+  int _imageHeight;
 
   List<Widget> listOfWidgets = [
     InstagramHandleSection(),
@@ -47,9 +48,14 @@ class _InfluencerPageState extends State<InfluencerPage> {
     Future getImage() async {
       final _pickedImage =
           await ImagePicker().getImage(source: ImageSource.gallery);
-      setState(() {
+      setState(() async {
         if (_pickedImage != null) {
           _image = _pickedImage;
+          final image = File(_image?.path);
+          var decodedImage = await decodeImageFromList(image.readAsBytesSync());
+          setState(() {
+            _imageHeight = decodedImage.height;
+          });
           Provider.of<AllProvider>(context, listen: false)
               .updateInfluencerPageImage(_image.path);
         }
@@ -90,7 +96,7 @@ class _InfluencerPageState extends State<InfluencerPage> {
                 _image != null
                     ? Image.file(
                         File(_image?.path),
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                       )
                     : Container(
                         height: 50,
@@ -146,7 +152,7 @@ class _InfluencerPageState extends State<InfluencerPage> {
                     backgroundColor: Colors.white,
                     automaticallyImplyLeading: false,
                     stretch: true,
-                    expandedHeight: _sHeight * 0.5,
+                    expandedHeight: _imageHeight?.toDouble() ?? _sHeight * 0.5,
                     flexibleSpace: FlexibleSpaceBar(
                       centerTitle: true,
                       title: _image != null

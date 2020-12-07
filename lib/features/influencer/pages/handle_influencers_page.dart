@@ -260,14 +260,16 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                                     Image.asset('assets/designer.jpg').color,
                                 child: ListTile(
                                   isThreeLine: true,
-                                  trailing: IconButton(
-                                    icon: FaIcon(
-                                      Icons.delete,
-                                      size: 16,
-                                    ),
-                                    onPressed: () =>
-                                        deleteInfluencer(influencers[index].id),
-                                  ),
+                                  trailing: !isAdmin
+                                      ? null
+                                      : IconButton(
+                                          icon: FaIcon(
+                                            Icons.delete,
+                                            size: 16,
+                                          ),
+                                          onPressed: () => deleteInfluencer(
+                                              influencers[index].id),
+                                        ),
                                   leading: CircleAvatar(
                                     radius: 26,
                                     backgroundColor: Colors.black87,

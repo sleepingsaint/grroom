@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class StylistPage extends StatefulWidget {
 class _StylistPageState extends State<StylistPage> {
   PickedFile _image;
   List<Widget> listItems = <Widget>[];
+  int _imageHeight;
 
   @override
   void initState() {
@@ -48,9 +50,15 @@ class _StylistPageState extends State<StylistPage> {
     Future getImage() async {
       final _pickedImage =
           await ImagePicker().getImage(source: ImageSource.gallery);
-      setState(() {
+      setState(() async {
         if (_pickedImage != null) {
           _image = _pickedImage;
+          final image = File(_image?.path);
+          var decodedImage = await decodeImageFromList(image.readAsBytesSync());
+          setState(() {
+            _imageHeight = decodedImage.height;
+          });
+
           Provider.of<AllProvider>(context, listen: false)
               .updateStylistPageImage(_image.path);
         }
@@ -91,7 +99,7 @@ class _StylistPageState extends State<StylistPage> {
                 _image != null
                     ? Image.file(
                         File(_image?.path),
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                       )
                     : Container(
                         height: 50,
@@ -181,7 +189,7 @@ class _StylistPageState extends State<StylistPage> {
                   backgroundColor: Colors.white,
                   automaticallyImplyLeading: false,
                   stretch: true,
-                  expandedHeight: _sHeight * 0.5,
+                  expandedHeight: _imageHeight?.toDouble() ?? _sHeight * 0.5,
                   flexibleSpace: FlexibleSpaceBar(
                     centerTitle: true,
                     title: _image != null

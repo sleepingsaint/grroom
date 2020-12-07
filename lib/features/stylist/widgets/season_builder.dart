@@ -17,6 +17,9 @@ class _SeasonBuilderState extends State<SeasonBuilder> {
   bool isExpanded = false;
   List<String> selectedSeason = [];
 
+  final GlobalKey<ExpansionTileCardState> _key =
+      GlobalKey<ExpansionTileCardState>();
+
   @override
   void initState() {
     if (widget.seasons != null) {
@@ -61,6 +64,7 @@ class _SeasonBuilderState extends State<SeasonBuilder> {
                     )
                   : BorderRadius.zero),
           child: ExpansionTileCard(
+              key: _key,
               animateTrailing: selectedSeason.isEmpty,
               trailing: selectedSeason.isEmpty
                   ? Icon(Icons.arrow_drop_down)
