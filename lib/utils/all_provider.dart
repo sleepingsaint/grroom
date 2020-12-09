@@ -15,7 +15,7 @@ class AllProvider extends ChangeNotifier {
   String _underTone = '';
   String _speciality = '';
   int _followersCount = 0;
-  List<String> _seasonsOption = [];
+  List<String> _seasonsOption = ["Summer", "Winter", "Autumn", "Spring"];
   List<String> _eventsOption = [];
   Map<String, dynamic> _stylesOption = {};
   List<Map<String, dynamic>> _bodyShape = [{}, {}];
@@ -215,11 +215,6 @@ class AllProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void toggleSeasons() {
-  //   _seasonsStatus = !_seasonsStatus;
-  //   notifyListeners();
-  // }
-
   void clearAll() {
     _influencerStatus = false;
     _bottomNavigationIndex = 0;
@@ -235,7 +230,7 @@ class AllProvider extends ChangeNotifier {
     _underTone = '';
     _speciality = '';
     _followersCount = 0;
-    _seasonsOption = [];
+    _seasonsOption = ["Summer", "Winter", "Autumn", "Spring"];
     _eventsOption = [];
     _stylesOption = {};
     _bodyShape = [{}, {}];
