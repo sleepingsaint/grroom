@@ -112,7 +112,7 @@ class _ISubmitButtonState extends State<ISubmitButton> {
       formData.files.add(MapEntry('image', image));
     }
     Dio dio = Dio();
-    dio.options.baseUrl = 'https://groombackend.herokuapp.com/api';
+    dio.options.baseUrl = 'http://134.209.158.65/api/v1';
     dio.options.headers = {
       HttpHeaders.authorizationHeader: "Bearer $bearerToken",
       "Content-Type": "multipart/form-data"
@@ -122,7 +122,7 @@ class _ISubmitButtonState extends State<ISubmitButton> {
 
     final response = widget.isEdit
         ? await dio
-            .patch('/v1/influencer/${widget.id}', data: formData)
+            .patch('/influencer/${widget.id}', data: formData)
             .catchError((onError) {
             DioError dioError = onError;
             errorMessage =
@@ -130,7 +130,7 @@ class _ISubmitButtonState extends State<ISubmitButton> {
             print(jsonDecode(dioError.response.toString()));
           })
         : await dio
-            .post('/v1/influencer', data: formData)
+            .post('/influencer', data: formData)
             .catchError((onError) {
             DioError dioError = onError;
             errorMessage =
@@ -142,6 +142,8 @@ class _ISubmitButtonState extends State<ISubmitButton> {
     setState(() {
       isLoading = false;
     });
+
+    print(response.data);
 
     if (response?.statusCode == 201 || response?.statusCode == 200) {
       showDialog(

@@ -69,8 +69,7 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
 
       String headerToken = await FlutterSecureStorage().read(key: "token");
 
-      String _endpoint =
-          "https://groombackend.herokuapp.com/api/v1/influencer/$id";
+      String _endpoint = "http://134.209.158.65/api/v1/influencer/$id";
       await http.delete(_endpoint,
           headers: {HttpHeaders.authorizationHeader: "Bearer $headerToken"});
 
@@ -182,13 +181,18 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.search,
-                                color: Colors.white54,
-                                size: 16,
-                              ),
-                              SizedBox(
-                                width: 4,
+                              Spacer(),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.search,
+                                    color: Colors.white54,
+                                    size: 16,
+                                  ),
+                                  SizedBox(
+                                    width: 4,
+                                  ),
+                                ],
                               ),
                               Text(
                                 'Search influencers',
@@ -197,6 +201,23 @@ class _HandleInfluencersPageState extends State<HandleInfluencersPage>
                                     letterSpacing: 0.5,
                                     fontWeight: FontWeight.w400),
                               ),
+                              Spacer(),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.refresh,
+                                  color: Colors.white30,
+                                ),
+                                onPressed: () async {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  influencers =
+                                      await RemoteFetch.getAllInfluencers();
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                },
+                              )
                             ],
                           ),
                         ),

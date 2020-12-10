@@ -237,7 +237,7 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                                 runSpacing: 20,
                                 children: [
                                   tablechild(
-                                      title: influencer.gender,
+                                      title: influencer.bodyShape.gender,
                                       subtitle: 'Gender'),
                                   Divider(
                                     indent: 50,
@@ -251,11 +251,7 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                                     endIndent: 50,
                                   ),
                                   tablechild(
-                                      title: influencer.bodyShape.isNotEmpty
-                                          ? influencer.gender != "Others"
-                                              ? '${influencer.bodyShape[0]["shape"] ?? ''}'
-                                              : '${influencer.bodyShape[0]["shape"] ?? ''}, ${influencer.bodyShape[1]["shape" ?? '']}'
-                                          : 'null',
+                                      title: influencer.bodyShape.shape,
                                       subtitle: 'Bodyshape'),
                                   Divider(
                                     indent: 50,

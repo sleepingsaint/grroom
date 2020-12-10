@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Influencer {
   final String id;
   final String firstName;
@@ -5,7 +7,7 @@ class Influencer {
   final String igUsername;
   final String igProfileLink;
   final String undertone;
-  final List<Map<String, String>> bodyShape;
+  final Bodyshape bodyShape;
   final String bodySize;
   final String country;
   final String speciality;
@@ -34,6 +36,8 @@ class Influencer {
   }
 
   static Influencer fromResp(var resp) {
+    var bodyShapeJson = resp["bodyShape"];
+    print(bodyShapeJson);
     return Influencer(
         id: resp["_id"] ?? "id",
         gender: resp['gender'] ?? 'Male',
@@ -42,14 +46,7 @@ class Influencer {
         igUsername: resp["igUsername"] ?? "",
         igProfileLink: resp["igProfileLink"] ?? "",
         undertone: resp["undertone"] ?? "",
-        bodyShape: List<Map<String, String>>.from(
-          resp["bodyShape"]?.map(
-                (x) => Map.from(x)?.map(
-                  (k, v) => MapEntry<String, String>(k, v),
-                ),
-              ) ??
-              {},
-        ),
+        bodyShape: bodyshapeFromJson(bodyShapeJson),
         bodySize: resp["bodySize"] ?? "",
         country: resp["country"] ?? "",
         speciality: resp["speciality"] ?? "",
@@ -66,11 +63,35 @@ class Influencer {
         igUsername: "",
         igProfileLink: "",
         undertone: "",
-        bodyShape: [],
+        bodyShape: Bodyshape(),
         bodySize: "",
         country: "",
         speciality: "",
         image: "",
         noOfFollower: "");
   }
+}
+
+Bodyshape bodyshapeFromJson(var str) {
+  return Bodyshape(gender: str["gender"], shape: str["shape"]);
+}
+
+class Bodyshape {
+  Bodyshape({
+    this.gender,
+    this.shape,
+  });
+
+  String gender;
+  String shape;
+
+  factory Bodyshape.fromJson(Map<String, dynamic> json) => Bodyshape(
+        gender: json["gender"],
+        shape: json["shape"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "gender": gender,
+        "shape": shape,
+      };
 }

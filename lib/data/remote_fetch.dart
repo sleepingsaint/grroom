@@ -12,11 +12,13 @@ class RemoteFetch {
   static Future<List<Influencer>> getAllInfluencers() async {
     String headerToken = await FlutterSecureStorage().read(key: "token");
 
-    String _endpoint = "https://groombackend.herokuapp.com/api/v1/influencer";
+    String _endpoint = "http://134.209.158.65/api/v1/influencer";
     var resp = await http.get(_endpoint,
         headers: {HttpHeaders.authorizationHeader: "Bearer $headerToken"});
 
-    {
+    if (resp.statusCode == 500) {
+      return <Influencer>[];
+    } else {
       var data = jsonDecode(resp.body)["data"];
 
       List<Influencer> influencers = [];
@@ -34,8 +36,7 @@ class RemoteFetch {
     String headerToken = await FlutterSecureStorage().read(key: "token");
     String role = await FlutterSecureStorage().read(key: "role");
 
-    String _endpoint =
-        "https://groombackend.herokuapp.com/api/v1/user/records/$id";
+    String _endpoint = "http://134.209.158.65/api/v1/user/records/$id";
     var resp = await http.get(_endpoint, headers: {
       HttpHeaders.authorizationHeader: "Bearer $headerToken",
     });
@@ -70,7 +71,7 @@ class RemoteFetch {
     List<String> bodySize = [];
     List<String> underTone = [];
     Map<String, dynamic> bodyShape = {};
-    String _endpoint = "https://groombackend.herokuapp.com/api/v1/constant";
+    String _endpoint = "http://134.209.158.65/api/v1/constant";
     var resp = await http.get(_endpoint);
     var json = jsonDecode(resp.body);
 
@@ -114,7 +115,7 @@ class RemoteFetch {
       HttpHeaders.contentTypeHeader: 'application/json'
     };
 
-    String _endpoint = "https://groombackend.herokuapp.com/api/v1/meta/";
+    String _endpoint = "http://134.209.158.65/api/v1/meta/";
 
     try {
       var resp = await dio.get(_endpoint);

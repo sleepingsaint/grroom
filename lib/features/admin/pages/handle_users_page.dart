@@ -38,7 +38,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   _getUsers() {
-    http.get("https://groombackend.herokuapp.com/api/v1/user", headers: {
+    http.get("http://134.209.158.65/api/v1/user", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
     }).then((value) {
       var resp = jsonDecode(value.body);
@@ -315,8 +315,8 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   Future<void> activateUser(DismissDirection dir, String id, int index) async {
-    var resp = await http
-        .patch("https://groombackend.herokuapp.com/api/v1/user/$id", headers: {
+    var resp =
+        await http.patch("http://134.209.158.65/api/v1/user/$id", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
     }, body: {
       'isVerified': dir == DismissDirection.startToEnd ? 'true' : 'false',
@@ -338,8 +338,8 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   Future<void> deleteUser(String id, int index) async {
-    var resp = await http
-        .patch("https://groombackend.herokuapp.com/api/v1/user/$id", headers: {
+    var resp =
+        await http.patch("http://134.209.158.65/api/v1/user/$id", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
     }, body: {
       'isDeleted': 'true',
@@ -358,8 +358,8 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   Future<void> restoreUser(String id, int index) async {
-    var resp = await http
-        .patch("https://groombackend.herokuapp.com/api/v1/user/$id", headers: {
+    var resp =
+        await http.patch("http://134.209.158.65/api/v1/user/$id", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
     }, body: {
       'isDeleted': 'false',

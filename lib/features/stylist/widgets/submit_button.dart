@@ -116,7 +116,7 @@ class _SubmitButtonState extends State<SubmitButton> {
     }
 
     Dio dio = Dio();
-    dio.options.baseUrl = 'https://groombackend.herokuapp.com/api';
+    dio.options.baseUrl = 'http://134.209.158.65/api/v1';
     dio.options.headers = {
       HttpHeaders.authorizationHeader: "Bearer $bearerToken",
       "Content-Type": "multipart/form-data"
@@ -124,12 +124,12 @@ class _SubmitButtonState extends State<SubmitButton> {
 
     final response = widget.isEdit
         ? await dio
-            .patch('/v1/meta/${widget.id}', data: formData)
+            .patch('/meta/${widget.id}', data: formData)
             .catchError((onError) {
             DioError dioError = onError;
             print(jsonDecode(dioError.response.toString())["message"]);
           })
-        : await dio.post('/v1/meta', data: formData).catchError((onError) {
+        : await dio.post('/meta', data: formData).catchError((onError) {
             DioError dioError = onError;
             print(jsonDecode(dioError.response.toString())["message"]);
           });

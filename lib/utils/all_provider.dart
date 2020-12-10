@@ -18,7 +18,7 @@ class AllProvider extends ChangeNotifier {
   List<String> _seasonsOption = ["Summer", "Winter", "Autumn", "Spring"];
   List<String> _eventsOption = [];
   Map<String, dynamic> _stylesOption = {};
-  List<Map<String, dynamic>> _bodyShape = [{}, {}];
+  Map<String, dynamic> _bodyShape = {};
   String _typeOption = '';
   String _location = '';
   String _stylistPageImage = '';
@@ -57,7 +57,7 @@ class AllProvider extends ChangeNotifier {
   int get bottomNavigationIndex => _bottomNavigationIndex;
   String get location => _location;
   Map<String, dynamic> get stylesOption => _stylesOption;
-  List<Map<String, dynamic>> get bodyShape => _bodyShape;
+  Map<String, dynamic> get bodyShape => _bodyShape;
   List<String> get seasonsOption => _seasonsOption;
   List<String> get eventsOption => _eventsOption;
   bool get influencerStatus => _influencerStatus;
@@ -190,7 +190,7 @@ class AllProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateBodyShape(List<Map<String, dynamic>> bodyShape) {
+  void updateBodyShape(Map<String, dynamic> bodyShape) {
     _bodyShape = bodyShape;
     notifyListeners();
   }
@@ -233,7 +233,7 @@ class AllProvider extends ChangeNotifier {
     _seasonsOption = ["Summer", "Winter", "Autumn", "Spring"];
     _eventsOption = [];
     _stylesOption = {};
-    _bodyShape = [{}, {}];
+    _bodyShape = {};
     _typeOption = '';
     _location = '';
     _stylistPageImage = '';

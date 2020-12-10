@@ -81,7 +81,7 @@ class _GenderSectionState extends State<GenderSection> {
                     .map((e) => GestureDetector(
                           onTap: () {
                             provider.updateGender(e);
-                            provider.updateBodyShape([{}, {}]);
+                            provider.updateBodyShape({});
                           },
                           child: Container(
                             alignment: Alignment.center,
