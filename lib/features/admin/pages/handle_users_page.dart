@@ -17,17 +17,10 @@ class HandleUsersPage extends StatefulWidget {
 
 class _HandleUsersPageState extends State<HandleUsersPage> {
   final GlobalKey<ScaffoldState> key = GlobalKey<ScaffoldState>();
-  String token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjBmODc3M2NiOTgzMDAxNzA0MDM5OCIsImlhdCI6MTYwNTg1MTQ3MiwiZXhwIjoxNjEzNjI3NDcyfQ.vDCEocYHHUxtYlwy7mF0Las5gASDkTE0xU02yp2xbH0";
-//  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjBmODc3M2NiOTgzMDAxNzA0MDM5OCIsImlhdCI6MTYwNTg1MTQ3MiwiZXhwIjoxNjEzNjI3NDcyfQ.vDCEocYHHUxtYlwy7mF0Las5gASDkTE0xU02yp2xbH0
   List<UserModel> allUsers = [];
   List<UserModel> verifiedUsers = [];
   List<UserModel> deletedUsers = [];
   bool isLoading = false;
-
-  Future<void> getToken() async {
-    token = await FlutterSecureStorage().read(key: 'token');
-  }
 
   @override
   void initState() {
@@ -37,7 +30,8 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
     // storage.read(key: "token").then((val) => setState(() => token = val));
   }
 
-  _getUsers() {
+  _getUsers() async {
+    final token = await FlutterSecureStorage().read(key: 'token');
     http.get("http://134.209.158.65/api/v1/user", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
     }).then((value) {
@@ -315,6 +309,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   Future<void> activateUser(DismissDirection dir, String id, int index) async {
+        final token = await FlutterSecureStorage().read(key: 'token');
     var resp =
         await http.patch("http://134.209.158.65/api/v1/user/$id", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
@@ -338,6 +333,8 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   Future<void> deleteUser(String id, int index) async {
+    final token = await FlutterSecureStorage().read(key: 'token');
+
     var resp =
         await http.patch("http://134.209.158.65/api/v1/user/$id", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
@@ -358,6 +355,8 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   Future<void> restoreUser(String id, int index) async {
+    final token = await FlutterSecureStorage().read(key: 'token');
+
     var resp =
         await http.patch("http://134.209.158.65/api/v1/user/$id", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
