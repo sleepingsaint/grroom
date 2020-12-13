@@ -9,18 +9,19 @@ import 'package:grroom/utils/all_provider.dart';
 import 'package:http/http.dart' as http;
 
 class RemoteFetch {
-  static Future<List<Influencer>> getAllInfluencers() async {
+  static Future<List<Influencer>> getAllInfluencers(
+      {int pageNumber, int limit}) async {
     String headerToken = await FlutterSecureStorage().read(key: "token");
 
-    String _endpoint = "http://134.209.158.65/api/v1/influencer";
+    String _endpoint =
+        "http://134.209.158.65/api/v1/influencer?page=$pageNumber&limit=$limit&sort=-createdAt";
     var resp = await http.get(_endpoint,
         headers: {HttpHeaders.authorizationHeader: "Bearer $headerToken"});
+    var data = jsonDecode(resp.body)["data"];
 
-    if (resp.statusCode == 500) {
+    if (resp.statusCode == 500 || data == null) {
       return <Influencer>[];
     } else {
-      var data = jsonDecode(resp.body)["data"];
-
       List<Influencer> influencers = [];
 
       data.forEach((inf) {
@@ -103,7 +104,8 @@ class RemoteFetch {
     return true;
   }
 
-  static Future<List<Stylist>> getAllStylists() async {
+  static Future<List<Stylist>> getAllStylists(
+      {int pageNumber, int limit}) async {
     List<Stylist> stylists = [];
 
     String headerToken = await FlutterSecureStorage().read(key: "token");
@@ -115,15 +117,14 @@ class RemoteFetch {
       HttpHeaders.contentTypeHeader: 'application/json'
     };
 
-    String _endpoint = "http://134.209.158.65/api/v1/meta/";
+    String _endpoint =
+        "http://134.209.158.65/api/v1/meta/?page=$pageNumber&limit=$limit&sort=-createdAt";
 
     try {
       var resp = await dio.get(_endpoint);
       if (resp.statusCode == 404) {
         return [];
       } else {
-        print(resp.data["data"]);
-
         final data = resp.data["data"] ?? [];
 
         if (role == 'user') {
@@ -150,7 +151,6 @@ class RemoteFetch {
         return stylists.reversed.toList();
       }
     } catch (e) {
-      print(e.error);
       return [];
     }
   }

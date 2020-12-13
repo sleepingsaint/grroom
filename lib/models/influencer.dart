@@ -1,4 +1,4 @@
-import 'dart:convert';
+
 
 class Influencer {
   final String id;
@@ -37,7 +37,6 @@ class Influencer {
 
   static Influencer fromResp(var resp) {
     var bodyShapeJson = resp["bodyShape"];
-    print(bodyShapeJson);
     return Influencer(
         id: resp["_id"] ?? "id",
         gender: resp['gender'] ?? 'Male',

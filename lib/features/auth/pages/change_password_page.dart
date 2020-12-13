@@ -52,7 +52,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       );
 
       var decodedRes = json.decode(response.body);
-      print(decodedRes);
       if (decodedRes["status"] == "error") {
         setState(() {
           _errorMessage = "Something went wrong! Try again.";

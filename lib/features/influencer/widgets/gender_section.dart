@@ -1,6 +1,7 @@
 import 'package:expansion_tile_card/expansion_tile_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:grroom/models/influencer.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -81,7 +82,7 @@ class _GenderSectionState extends State<GenderSection> {
                     .map((e) => GestureDetector(
                           onTap: () {
                             provider.updateGender(e);
-                            provider.updateBodyShape({});
+                            provider.updateBodyShape(Bodyshape());
                           },
                           child: Container(
                             alignment: Alignment.center,

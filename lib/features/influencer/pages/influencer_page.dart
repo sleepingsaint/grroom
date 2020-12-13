@@ -48,7 +48,6 @@ class _InfluencerPageState extends State<InfluencerPage> {
     Future getImage() async {
       final _pickedImage =
           await ImagePicker().getImage(source: ImageSource.gallery);
-      setState(() async {
         if (_pickedImage != null) {
           _image = _pickedImage;
           final image = File(_image?.path);
@@ -59,7 +58,6 @@ class _InfluencerPageState extends State<InfluencerPage> {
           Provider.of<AllProvider>(context, listen: false)
               .updateInfluencerPageImage(_image.path);
         }
-      });
     }
 
     Widget imageHeader() {
@@ -87,20 +85,23 @@ class _InfluencerPageState extends State<InfluencerPage> {
                     ],
                   )),
           ),
-          secondChild: Stack(
-            fit: StackFit.expand,
-            alignment: Alignment.bottomCenter,
-            children: [
-              _image != null
-                  ? Image.file(
-                      File(_image?.path),
-                      fit: BoxFit.contain,
-                    )
-                  : Container(
-                      height: 50,
-                      width: 50,
-                    ),
-            ],
+          secondChild: LimitedBox(
+            maxHeight: 10,
+            child: Stack(
+              fit: StackFit.expand,
+              alignment: Alignment.bottomCenter,
+              children: [
+                _image != null
+                    ? Image.file(
+                        File(_image?.path),
+                        fit: BoxFit.contain,
+                      )
+                    : Container(
+                        height: 50,
+                        width: 50,
+                      ),
+              ],
+            ),
           ),
           crossFadeState: _image == null
               ? CrossFadeState.showFirst

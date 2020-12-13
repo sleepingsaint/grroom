@@ -35,11 +35,9 @@ class _LoginPageState extends State<LoginPage> {
         "email": _emailController.text,
         "password": _passwordController.text,
       }).catchError((onError) {
-        print(onError.toString());
       });
 
       var decodedRes = json.decode(response.body);
-      print(decodedRes);
       if (decodedRes["status"] == "fail") {
         setState(() {
           _errorMessage = decodedRes["message"];

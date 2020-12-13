@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:grroom/data/remote_fetch.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -61,10 +63,19 @@ class _MyHomePageState extends State<MyHomePage> {
   String role;
   bool screenLoaded = false;
   bool redirect = false;
+  Future _future;
   @override
   void initState() {
-    super.initState();
     final storage = FlutterSecureStorage();
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      _future = Future.wait([
+        Hive.openBox('influencerBox'),
+        Hive.openBox('locationBox'),
+        RemoteFetch.getConstants(
+          provider: Provider.of<AllProvider>(context, listen: false),
+        )
+      ]);
+    });
     storage.containsKey(key: "token").then((_contains) {
       if (_contains) {
         storage
@@ -79,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
         screenLoaded = true;
       });
     });
+    super.initState();
   }
 
   @override
@@ -95,10 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? redirect
                         ? LoginPage()
                         : FutureBuilder(
-                            future: Future.wait([
-                              Hive.openBox('influencerBox'),
-                              Hive.openBox('locationBox'),
-                            ]),
+                            future: _future,
                             builder:
                                 (BuildContext context, AsyncSnapshot snapshot) {
                               if (snapshot.hasData) {
@@ -114,23 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     : SpinKitPouringHourglass(
                         color: Colors.black87,
                         size: 20,
-                      )
-                // child: FutureBuilder(
-                //   future: Future.wait([
-                //     Hive.openBox('influencerBox'),
-                //     Hive.openBox('locationBox'),
-                //   ]),
-                //   builder: (BuildContext context, AsyncSnapshot snapshot) {
-                //     if (snapshot.hasData) {
-                //       return StylistPage();
-                //     } else {
-                //       return CircularProgressIndicator(
-                //         valueColor: AlwaysStoppedAnimation(Colors.black87),
-                //       );
-                //     }
-                //   },
-                // ),
-                ),
+                      )),
           ),
         ),
       ),

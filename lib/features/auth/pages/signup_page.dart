@@ -38,7 +38,6 @@ class _SignupPageState extends State<SignupPage> {
       });
 
       var decodedRes = json.decode(response.body);
-      print(decodedRes);
 
       if (decodedRes["status"] == "success") {
         Navigator.of(context).pushReplacement(MaterialPageRoute(

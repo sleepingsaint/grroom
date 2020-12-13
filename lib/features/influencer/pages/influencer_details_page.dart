@@ -162,7 +162,7 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                             ),
                             Text(
                               influencer.country,
-                              style: GoogleFonts.nunito(color: Colors.black54),
+                              style: TextStyle(color: Colors.black54),
                             )
                           ],
                         ),
@@ -414,7 +414,7 @@ class _InfluencerDetailsPageState extends State<InfluencerDetailsPage> {
                   Text(
                     '${influencer.speciality}',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.nunito(
+                    style: TextStyle(
                         color: Colors.white70,
                         fontSize: 30,
                         letterSpacing: 0.2,

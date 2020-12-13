@@ -48,7 +48,6 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
         verifiedUsers = allUsers.where((e) => e.isVerified).toList();
         // deletedUsers = allUsers.where((e) => e.isDeleted).toList();
       } else {
-        print("Oops! some error occured");
       }
     });
   }
@@ -91,9 +90,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => HandleStylistPage(
-                            stylistsList: stylists,
-                          ),
+                          builder: (_) => HandleStylistPage(),
                         ),
                       );
                     },
@@ -309,7 +306,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
   }
 
   Future<void> activateUser(DismissDirection dir, String id, int index) async {
-        final token = await FlutterSecureStorage().read(key: 'token');
+    final token = await FlutterSecureStorage().read(key: 'token');
     var resp =
         await http.patch("http://134.209.158.65/api/v1/user/$id", headers: {
       HttpHeaders.authorizationHeader: "Bearer $token"
@@ -319,7 +316,6 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
 
     var data = jsonDecode(resp.body);
     if (data["status"] == "success") {
-      print("success");
       setState(() {
         _getUsers();
       });
@@ -328,7 +324,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
               ? 'User verified'
               : 'User rejected')));
     } else {
-      print(data);
+    
     }
   }
 
@@ -344,13 +340,11 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
 
     var data = jsonDecode(resp.body);
     if (data["status"] == "success") {
-      print("success");
       setState(() {
         _getUsers();
       });
       key.currentState.showSnackBar(SnackBar(content: Text('User deleted')));
     } else {
-      print(data);
     }
   }
 
@@ -366,12 +360,10 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
 
     var data = jsonDecode(resp.body);
     if (data["status"] == "success") {
-      print("success");
 
       _getUsers();
       key.currentState.showSnackBar(SnackBar(content: Text('User restored')));
     } else {
-      print(data);
     }
   }
 }

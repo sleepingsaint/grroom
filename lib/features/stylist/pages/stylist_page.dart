@@ -59,20 +59,18 @@ class _StylistPageState extends State<StylistPage> {
     Future getImage() async {
       final _pickedImage =
           await ImagePicker().getImage(source: ImageSource.gallery);
-      setState(() async {
-        if (_pickedImage != null) {
-          _image = _pickedImage;
-          final image = File(_image?.path);
-          var decodedImage = await decodeImageFromList(image.readAsBytesSync());
+      if (_pickedImage != null) {
+        _image = _pickedImage;
+        final image = File(_image?.path);
+        var decodedImage = await decodeImageFromList(image.readAsBytesSync());
 
-          setState(() {
-            _imageHeight = decodedImage.height;
-          });
+        setState(() {
+          _imageHeight = decodedImage.height;
+        });
 
-          Provider.of<AllProvider>(context, listen: false)
-              .updateStylistPageImage(_image.path);
-        }
-      });
+        Provider.of<AllProvider>(context, listen: false)
+            .updateStylistPageImage(_image.path);
+      }
     }
 
     Widget imageHeader() {
@@ -100,20 +98,23 @@ class _StylistPageState extends State<StylistPage> {
                     ],
                   )),
           ),
-          secondChild: Stack(
-            fit: StackFit.expand,
-            alignment: Alignment.bottomCenter,
-            children: [
-              _image != null
-                  ? Image.file(
-                      File(_image?.path),
-                      fit: BoxFit.contain,
-                    )
-                  : Container(
-                      height: 50,
-                      width: 50,
-                    ),
-            ],
+          secondChild: LimitedBox(
+            maxHeight: 10,
+            child: Stack(
+              fit: StackFit.expand,
+              alignment: Alignment.bottomCenter,
+              children: [
+                _image != null
+                    ? Image.file(
+                        File(_image?.path),
+                        fit: BoxFit.contain,
+                      )
+                    : Container(
+                        height: 50,
+                        width: 50,
+                      ),
+              ],
+            ),
           ),
           crossFadeState: _image == null
               ? CrossFadeState.showFirst

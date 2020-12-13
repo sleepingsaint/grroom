@@ -275,7 +275,6 @@ class _AddInfluencerScreenState extends State<AddInfluencerScreen> {
   Future<void> handleSubmitInfluencer() async {
     if (_formKey.currentState.validate()) {
       if (_image == null) {
-        print("image not taken");
       } else {
         const String endpoint = "http://134.209.158.65/api/v1/influencer";
         print(_image.path.split('/').last);

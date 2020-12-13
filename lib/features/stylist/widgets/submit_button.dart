@@ -59,7 +59,6 @@ class _SubmitButtonState extends State<SubmitButton> {
             side: BorderSide(color: Colors.black87, width: 2),
             borderRadius: BorderRadius.circular(5)),
         onPressed: () {
-          print(_provider.influencerCode.isNotEmpty);
           if (isLoading) {
           } else if (isAllOptionsChosen) {
             submitData(context);
@@ -127,11 +126,9 @@ class _SubmitButtonState extends State<SubmitButton> {
             .patch('/meta/${widget.id}', data: formData)
             .catchError((onError) {
             DioError dioError = onError;
-            print(jsonDecode(dioError.response.toString())["message"]);
           })
         : await dio.post('/meta', data: formData).catchError((onError) {
             DioError dioError = onError;
-            print(jsonDecode(dioError.response.toString())["message"]);
           });
 
     setState(() {

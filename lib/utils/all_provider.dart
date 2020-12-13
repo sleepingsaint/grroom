@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:grroom/models/influencer.dart';
 
 class AllProvider extends ChangeNotifier {
   bool _influencerStatus = false;
@@ -18,14 +19,11 @@ class AllProvider extends ChangeNotifier {
   List<String> _seasonsOption = ["Summer", "Winter", "Autumn", "Spring"];
   List<String> _eventsOption = [];
   Map<String, dynamic> _stylesOption = {};
-  Map<String, dynamic> _bodyShape = {};
+  Bodyshape _bodyShape = Bodyshape();
   String _typeOption = '';
   String _location = '';
   String _stylistPageImage = '';
   String _influencerPageImage = '';
-  // bool _seasonsStatus = false;
-  // bool get seasonsStatus => _seasonsStatus;
-
   List<String> _baseEvents = [];
   List<Map<String, dynamic>> _baseStyles = [];
   List<String> _baseSeason = [];
@@ -57,7 +55,7 @@ class AllProvider extends ChangeNotifier {
   int get bottomNavigationIndex => _bottomNavigationIndex;
   String get location => _location;
   Map<String, dynamic> get stylesOption => _stylesOption;
-  Map<String, dynamic> get bodyShape => _bodyShape;
+  Bodyshape get bodyShape => _bodyShape;
   List<String> get seasonsOption => _seasonsOption;
   List<String> get eventsOption => _eventsOption;
   bool get influencerStatus => _influencerStatus;
@@ -190,7 +188,7 @@ class AllProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateBodyShape(Map<String, dynamic> bodyShape) {
+  void updateBodyShape(Bodyshape bodyShape) {
     _bodyShape = bodyShape;
     notifyListeners();
   }
@@ -233,7 +231,7 @@ class AllProvider extends ChangeNotifier {
     _seasonsOption = ["Summer", "Winter", "Autumn", "Spring"];
     _eventsOption = [];
     _stylesOption = {};
-    _bodyShape = {};
+    _bodyShape = Bodyshape();
     _typeOption = '';
     _location = '';
     _stylistPageImage = '';

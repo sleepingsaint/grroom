@@ -37,7 +37,7 @@ class _ISubmitButtonState extends State<ISubmitButton> {
             _provider.followerCount != 0 &&
             _provider.counrty.isNotEmpty &&
             _provider.bodySize.isNotEmpty &&
-            _provider.bodyShape.isNotEmpty) ||
+            _provider.bodyShape.shape != null) ||
         widget.isEdit;
 
     return AnimatedContainer(
@@ -54,7 +54,6 @@ class _ISubmitButtonState extends State<ISubmitButton> {
             side: BorderSide(color: Colors.black87, width: 2),
             borderRadius: BorderRadius.circular(5)),
         onPressed: () {
-          print(_provider.counrty.isNotEmpty);
           if (isLoading) {
           } else if (isAllOptionsChosen) {
             submitData(context);
@@ -127,16 +126,11 @@ class _ISubmitButtonState extends State<ISubmitButton> {
             DioError dioError = onError;
             errorMessage =
                 jsonDecode(dioError.response.toString())['message'].toString();
-            print(jsonDecode(dioError.response.toString()));
           })
-        : await dio
-            .post('/influencer', data: formData)
-            .catchError((onError) {
+        : await dio.post('/influencer', data: formData).catchError((onError) {
             DioError dioError = onError;
             errorMessage =
                 jsonDecode(dioError.response.toString())['message'].toString();
-
-            print(jsonDecode(dioError.response.toString()));
           });
 
     setState(() {
