@@ -4,14 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:grroom/data/remote_fetch.dart';
 import 'package:grroom/features/stylist/pages/stylist_details_page.dart';
 import 'package:grroom/features/stylist/pages/stylist_page.dart';
 import 'package:grroom/models/stylist.dart';
 
 class HandleStylistPage extends StatefulWidget {
-  const HandleStylistPage({Key key}) : super(key: key);
+  final List<Stylist> stylists;
+  HandleStylistPage({
+    Key key,
+    this.stylists,
+  }) : super(key: key);
   @override
   _HandleStylistPageState createState() => _HandleStylistPageState();
 }
@@ -24,17 +28,34 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
   final ValueNotifier<List<Stylist>> _stylistNotifier =
       ValueNotifier<List<Stylist>>([]);
   final ValueNotifier<bool> _loadingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _endListNotifier = ValueNotifier<bool>(false);
 
   @override
   void initState() {
-    _loadFirst20();
-    _controller = ScrollController()
-      ..addListener(() async {
-        if (_controller.position.pixels ==
-            _controller.position.maxScrollExtent) {
-          await _loadMore();
-        }
-      });
+    _controller = ScrollController();
+    if (widget.stylists == null) {
+      _loadFirst20();
+      _controller
+        ..addListener(() async {
+          if (_controller.position.pixels ==
+              _controller.position.maxScrollExtent) {
+            if (!_endListNotifier.value) {
+              await _loadMore();
+            }
+          }
+        });
+    } else {
+      _loadFirst20FromList();
+      _controller
+        ..addListener(() async {
+          if (_controller.position.pixels ==
+              _controller.position.maxScrollExtent) {
+            if (!_endListNotifier.value) {
+              await _loadMoreFromList();
+            }
+          }
+        });
+    }
     super.initState();
   }
 
@@ -47,12 +68,45 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
     _pageNotifier.value++;
   }
 
+  Future _loadFirst20FromList() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    List<Stylist> inf;
+    if (widget.stylists.length > 20) {
+      inf = widget.stylists.sublist(0, 20);
+      _stylistNotifier.value.addAll(inf);
+      _pageNotifier.value = 20;
+      _pageNotifier.value += 5;
+    } else {
+      _stylistNotifier.value = widget.stylists;
+      _endListNotifier.value = true;
+    }
+  }
+
   Future _loadMore() async {
     await Future.delayed(const Duration(milliseconds: 100));
     final List<Stylist> inf = await RemoteFetch.getAllStylists(
         pageNumber: _pageNotifier.value, limit: 5);
-    _stylistNotifier.value.addAll(inf);
-    _pageNotifier.value++;
+    if (inf.isNotEmpty) {
+      _stylistNotifier.value.addAll(inf);
+      _pageNotifier.value++;
+    } else {
+      _endListNotifier.value = true;
+    }
+  }
+
+  Future _loadMoreFromList() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    try {
+      final List<Stylist> inf =
+          widget.stylists.sublist(_pageNotifier.value, _pageNotifier.value + 20);
+      _stylistNotifier.value.addAll(inf);
+      _pageNotifier.value += 20;
+    } catch (e) {
+      final List<Stylist> inf =
+          widget.stylists.sublist(_pageNotifier.value, widget.stylists.length);
+      _stylistNotifier.value.addAll(inf);
+      _endListNotifier.value = true;
+    }
   }
 
   @override
@@ -64,8 +118,12 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation:
-          Listenable.merge([_pageNotifier, _loadingNotifier, _stylistNotifier]),
+      animation: Listenable.merge([
+        _pageNotifier,
+        _loadingNotifier,
+        _stylistNotifier,
+        _endListNotifier
+      ]),
       builder: (BuildContext context, Widget child) {
         return SafeArea(
           child: Stack(
@@ -80,33 +138,41 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
                             SizedBox(
                               height: 10,
                             ),
-                            RaisedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => StylistPage()));
-                              },
-                              color: Colors.black87,
-                              child: Text(
-                                'Create new meta',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            RaisedButton(
-                              onPressed: () async {
-                                await _loadMore();
-                              },
-                              color: Colors.black87,
-                              child: Text(
-                                'Refresh',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            )
+                            (widget.stylists != null && widget.stylists.isEmpty)
+                                ? SizedBox.shrink()
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      RaisedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (_) =>
+                                                      StylistPage()));
+                                        },
+                                        color: Colors.black87,
+                                        child: Text(
+                                          'Create new meta',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      RaisedButton(
+                                        onPressed: () async {
+                                          await _loadMore();
+                                        },
+                                        color: Colors.black87,
+                                        child: Text(
+                                          'Refresh',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
                           ],
                         ),
                       )
@@ -187,8 +253,9 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
                                         top: 20, bottom: 100),
                                     physics: const BouncingScrollPhysics(),
                                     shrinkWrap: true,
-                                    itemCount:
-                                        _stylistNotifier.value.length + 1,
+                                    itemCount: _endListNotifier.value
+                                        ? _stylistNotifier.value.length
+                                        : _stylistNotifier.value.length + 1,
                                     itemBuilder:
                                         (BuildContext context, int index) {
                                       if (index ==

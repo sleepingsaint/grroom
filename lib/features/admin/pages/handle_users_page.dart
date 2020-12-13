@@ -47,8 +47,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
         setState(() => allUsers = tempUsers);
         verifiedUsers = allUsers.where((e) => e.isVerified).toList();
         // deletedUsers = allUsers.where((e) => e.isDeleted).toList();
-      } else {
-      }
+      } else {}
     });
   }
 
@@ -90,7 +89,9 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => HandleStylistPage(),
+                          builder: (_) => HandleStylistPage(
+                            stylists: stylists,
+                          ),
                         ),
                       );
                     },
@@ -323,9 +324,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
           content: Text(dir == DismissDirection.startToEnd
               ? 'User verified'
               : 'User rejected')));
-    } else {
-    
-    }
+    } else {}
   }
 
   Future<void> deleteUser(String id, int index) async {
@@ -344,8 +343,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
         _getUsers();
       });
       key.currentState.showSnackBar(SnackBar(content: Text('User deleted')));
-    } else {
-    }
+    } else {}
   }
 
   Future<void> restoreUser(String id, int index) async {
@@ -360,10 +358,8 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
 
     var data = jsonDecode(resp.body);
     if (data["status"] == "success") {
-
       _getUsers();
       key.currentState.showSnackBar(SnackBar(content: Text('User restored')));
-    } else {
-    }
+    } else {}
   }
 }

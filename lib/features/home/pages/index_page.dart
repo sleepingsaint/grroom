@@ -27,6 +27,7 @@ class IndexPageState extends State<IndexPage> {
     super.initState();
     FlutterSecureStorage().read(key: 'role').then((value) {
       isAdmin = value == 'admin';
+      setState(() {});
     });
   }
 

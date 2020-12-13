@@ -122,7 +122,8 @@ class RemoteFetch {
 
     try {
       var resp = await dio.get(_endpoint);
-      if (resp.statusCode == 404) {
+      final data = resp.data["data"];
+      if (resp.statusCode == 404 || data == null) {
         return [];
       } else {
         final data = resp.data["data"] ?? [];
