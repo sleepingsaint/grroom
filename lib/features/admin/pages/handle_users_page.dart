@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:grroom/data/remote_fetch.dart';
 import 'package:grroom/features/stylist/pages/handle_stylist_page.dart';
+import 'package:grroom/features/stylist/pages/particular_stlylist_page.dart';
 import 'package:grroom/models/stylist.dart';
 import 'package:grroom/models/user.dart';
 import 'package:http/http.dart' as http;
@@ -46,7 +47,7 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
         });
         setState(() => allUsers = tempUsers);
         verifiedUsers = allUsers.where((e) => e.isVerified).toList();
-        // deletedUsers = allUsers.where((e) => e.isDeleted).toList();
+        // deletedUsers = allUsers.where((e) => e.isDeleted).toList()
       } else {}
     });
   }
@@ -75,22 +76,12 @@ class _HandleUsersPageState extends State<HandleUsersPage> {
                   elevation: 2,
                   child: ListTile(
                     onTap: () async {
-                      setState(() {
-                        isLoading = true;
-                      });
-                      List<Stylist> stylists =
-                          await RemoteFetch.getParticularMeta(
-                              id: users[index].id);
-
-                      setState(() {
-                        isLoading = false;
-                      });
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => HandleStylistPage(
-                            stylists: stylists,
+                          builder: (_) => ParticularStylistPage(
+                            userId: users[index].id,
+                            userName: users[index].email,
                           ),
                         ),
                       );

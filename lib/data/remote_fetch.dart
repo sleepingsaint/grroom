@@ -8,15 +8,17 @@ import 'package:grroom/models/stylist.dart';
 import 'package:grroom/utils/all_provider.dart';
 import 'package:http/http.dart' as http;
 
-class RemoteFetch {
+abstract class RemoteFetch {
   static Future<List<Influencer>> getAllInfluencers(
       {int pageNumber, int limit}) async {
     String headerToken = await FlutterSecureStorage().read(key: "token");
 
     String _endpoint =
         "http://134.209.158.65/api/v1/influencer?page=$pageNumber&limit=$limit&sort=-createdAt";
-    var resp = await http.get(_endpoint,
-        headers: {HttpHeaders.authorizationHeader: "Bearer $headerToken"});
+    var resp = await http.get(_endpoint, headers: {
+      HttpHeaders.authorizationHeader: "Bearer $headerToken",
+      HttpHeaders.connectionHeader: "keep-alive"
+    });
     var data = jsonDecode(resp.body)["data"];
 
     if (resp.statusCode == 500 || data == null) {
@@ -27,40 +29,86 @@ class RemoteFetch {
       data.forEach((inf) {
         influencers.add(Influencer.fromResp(inf));
       });
-      return influencers.reversed.toList();
+      return influencers.toList();
     }
   }
 
-  static Future<List<Stylist>> getParticularMeta({String id}) async {
+  static Future<int> getInfluencersCount() async {
+    String headerToken = await FlutterSecureStorage().read(key: "token");
+
+    String _endpoint = "http://134.209.158.65/api/v1/influencer";
+    var resp = await http.get(_endpoint, headers: {
+      HttpHeaders.authorizationHeader: "Bearer $headerToken",
+      HttpHeaders.connectionHeader: "keep-alive"
+    });
+    var data = jsonDecode(resp.body)["total"];
+
+    return data as int;
+  }
+
+  static Future<int> getStylistCount() async {
+    String headerToken = await FlutterSecureStorage().read(key: "token");
+
+    String _endpoint = "http://134.209.158.65/api/v1/meta";
+    var resp = await http.get(_endpoint,
+        headers: {HttpHeaders.authorizationHeader: "Bearer $headerToken"});
+    var data = jsonDecode(resp.body)["total"];
+
+    return data as int;
+  }
+
+  static Future<List<Stylist>> getParticularMeta(
+      {String id, int pageNumber, int limit}) async {
     List<Stylist> stylists = [];
 
     String headerToken = await FlutterSecureStorage().read(key: "token");
     String role = await FlutterSecureStorage().read(key: "role");
 
-    String _endpoint = "http://134.209.158.65/api/v1/user/records/$id";
+    String _endpoint =
+        "http://134.209.158.65/api/v1/user/records/$id?page=$pageNumber&limit=$limit&sort=-createdAt";
     var resp = await http.get(_endpoint, headers: {
       HttpHeaders.authorizationHeader: "Bearer $headerToken",
+      HttpHeaders.connectionHeader: "keep-alive"
     });
 
     var data = jsonDecode(resp.body)['data'] ?? [];
 
-    data.forEach((e) {
-      var json = e["file"];
-      stylists.add(Stylist(
-        style: Style.fromJson(json["style"]),
-        location: json['location'].toString(),
-        events: List<String>.from(json["events"].map((x) => x)),
-        season: List<String>.from(json["season"].map((x) => x)),
-        createdAt: DateTime.parse(json["createdAt"]),
-        id: json["_id"],
-        influencerId: json["influencerID"],
-        type: json["type"],
-        place: json["place"],
-        image: json["image"],
-      ));
+    if (data == []) {
+      return [];
+    } else {
+      data.forEach((e) {
+        var json = e["file"];
+        stylists.add(Stylist(
+          style: Style.fromJson(json["style"]),
+          location: json['location'].toString(),
+          events: List<String>.from(json["events"].map((x) => x)),
+          season: List<String>.from(json["season"].map((x) => x)),
+          createdAt: DateTime.parse(json["createdAt"]),
+          id: json["_id"],
+          influencerId: json["influencerID"],
+          type: json["type"],
+          place: json["place"],
+          image: json["image"],
+        ));
+      });
+
+      return stylists.toList();
+    }
+  }
+
+  static Future<int> getCountParticularMeta(
+      {String id, int pageNumber, int limit}) async {
+    String headerToken = await FlutterSecureStorage().read(key: "token");
+
+    String _endpoint = "http://134.209.158.65/api/v1/user/records/$id";
+    var resp = await http.get(_endpoint, headers: {
+      HttpHeaders.authorizationHeader: "Bearer $headerToken",
+      HttpHeaders.connectionHeader: "keep-alive"
     });
 
-    return stylists.reversed.toList();
+    var data = jsonDecode(resp.body)["total"];
+
+    return data as int;
   }
 
   static Future<bool> getConstants({AllProvider provider}) async {
@@ -114,7 +162,8 @@ class RemoteFetch {
     Dio dio = Dio();
     dio.options.headers = {
       HttpHeaders.authorizationHeader: "Bearer $headerToken",
-      HttpHeaders.contentTypeHeader: 'application/json'
+      HttpHeaders.contentTypeHeader: 'application/json',
+      HttpHeaders.connectionHeader: "keep-alive"
     };
 
     String _endpoint =
@@ -149,7 +198,7 @@ class RemoteFetch {
             stylists.add(Stylist.fromJson(e));
           });
         }
-        return stylists.reversed.toList();
+        return stylists.toList();
       }
     } catch (e) {
       return [];

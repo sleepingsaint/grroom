@@ -2,26 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:grroom/data/remote_fetch.dart';
-import 'package:grroom/features/stylist/pages/stylist_page.dart';
 import 'package:grroom/features/stylist/widgets/stylist_card.dart';
 import 'package:grroom/models/stylist.dart';
 
 const int kStylistLimit = 25;
 
-class HandleStylistPage extends StatefulWidget {
+class ParticularStylistPage extends StatefulWidget {
   final String userId;
+  final String userName;
 
-  const HandleStylistPage({
+  const ParticularStylistPage({
     Key key,
     this.userId,
+    this.userName,
   }) : super(key: key);
   @override
-  _HandleStylistPageState createState() => _HandleStylistPageState();
+  _ParticularStylistPageState createState() => _ParticularStylistPageState();
 }
 
-class _HandleStylistPageState extends State<HandleStylistPage> {
+class _ParticularStylistPageState extends State<ParticularStylistPage> {
   final storage = FlutterSecureStorage();
   String token;
   final ValueNotifier<int> _pageNotifier = ValueNotifier<int>(1);
@@ -38,14 +38,17 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
   }
 
   Future _loadFirst100() async {
-    _pageNotifier.value = 1;
     _loadingNotifier.value = true;
+    _pageNotifier.value = 1;
     _stylistNotifier.value = [];
-    _lengthNotifier.value = await RemoteFetch.getStylistCount();
+    _lengthNotifier.value =
+        await RemoteFetch.getCountParticularMeta(id: widget.userId);
 
     await Future.delayed(const Duration(milliseconds: 100));
-    final List<Stylist> inf = await RemoteFetch.getAllStylists(
-        pageNumber: _pageNotifier.value, limit: kStylistLimit);
+    final List<Stylist> inf = await RemoteFetch.getParticularMeta(
+        pageNumber: _pageNotifier.value,
+        limit: kStylistLimit,
+        id: widget.userId);
     _stylistNotifier.value.addAll(inf);
     _loadingNotifier.value = false;
   }
@@ -54,8 +57,10 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
     _loadingNotifier.value = true;
     _stylistNotifier.value = [];
     await Future.delayed(const Duration(milliseconds: 100));
-    final List<Stylist> inf = await RemoteFetch.getAllStylists(
-        pageNumber: _pageNotifier.value, limit: kStylistLimit);
+    final List<Stylist> inf = await RemoteFetch.getParticularMeta(
+        pageNumber: _pageNotifier.value,
+        limit: kStylistLimit,
+        id: widget.userId);
     if (inf.isNotEmpty) {
       _stylistNotifier.value.addAll(inf);
     } else {
@@ -69,8 +74,10 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
     _loadingNotifier.value = true;
     _stylistNotifier.value = [];
     await Future.delayed(const Duration(milliseconds: 100));
-    final List<Stylist> inf = await RemoteFetch.getAllStylists(
-        pageNumber: _pageNotifier.value, limit: kStylistLimit);
+    final List<Stylist> inf = await RemoteFetch.getParticularMeta(
+        pageNumber: _pageNotifier.value,
+        limit: kStylistLimit,
+        id: widget.userId);
     if (inf.isNotEmpty) {
       _stylistNotifier.value.addAll(inf);
     } else {
@@ -95,54 +102,23 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
           child: Stack(
             children: [
               Scaffold(
-                body: _stylistNotifier.value.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('List is empty'),
-                            SizedBox(
-                              height: 10,
+                appBar: _stylistNotifier.value.isNotEmpty
+                    ? null
+                    : AppBar(
+                        backgroundColor: Colors.white,
+                        elevation: 0,
+                        leading: IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios,
+                              color: Colors.black87,
+                              size: 14,
                             ),
-                            (widget.userId != null)
-                                ? SizedBox.shrink()
-                                : Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      RaisedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      StylistPage()));
-                                        },
-                                        color: Colors.black87,
-                                        child: Text(
-                                          'Create new meta',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                      RaisedButton(
-                                        onPressed: () async {
-                                          await _loadMore();
-                                        },
-                                        color: Colors.black87,
-                                        child: Text(
-                                          'Refresh',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                          ],
-                        ),
-                      )
-                    : CustomScrollView(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            }),
+                      ),
+                body: _stylistNotifier.value.isNotEmpty
+                    ? CustomScrollView(
                         physics: const BouncingScrollPhysics(),
                         slivers: [
                           _appBar(context),
@@ -172,21 +148,19 @@ class _HandleStylistPageState extends State<HandleStylistPage> {
                             ),
                           )
                         ],
-                      ),
-                floatingActionButton: FloatingActionButton(
-                    heroTag: UniqueKey(),
-                    mini: true,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    backgroundColor: Colors.black87,
-                    child: FaIcon(
-                      FontAwesomeIcons.plus,
-                      size: 12,
-                    ),
-                    onPressed: () =>
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (BuildContext context) => StylistPage(),
-                        ))),
+                      )
+                    : !_loadingNotifier.value
+                        ? Center(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
+                              child: Text(
+                                '${widget.userName} has not created any stylists until now',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        : SizedBox.shrink(),
               ),
               _loadingNotifier.value
                   ? Container(
