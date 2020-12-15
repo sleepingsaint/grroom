@@ -72,24 +72,32 @@ abstract class RemoteFetch {
     });
 
     var data = jsonDecode(resp.body)['data'] ?? [];
+    int count = 0;
 
     if (data == []) {
       return [];
     } else {
       data.forEach((e) {
         var json = e["file"];
-        stylists.add(Stylist(
-          style: Style.fromJson(json["style"]),
-          location: json['location'].toString(),
-          events: List<String>.from(json["events"].map((x) => x)),
-          season: List<String>.from(json["season"].map((x) => x)),
-          createdAt: DateTime.parse(json["createdAt"]),
-          id: json["_id"],
-          influencerId: json["influencerID"],
-          type: json["type"],
-          place: json["place"],
-          image: json["image"],
-        ));
+        if (json == null) {
+          count++;
+          print(count);
+        } else {
+          stylists.add(
+            Stylist(
+              style: Style.fromJson(json["style"]),
+              location: json['location'].toString(),
+              events: List<String>.from(json["events"].map((x) => x)),
+              season: List<String>.from(json["season"].map((x) => x)),
+              createdAt: DateTime.parse(json["createdAt"]),
+              id: json["_id"],
+              influencerId: json["influencerID"],
+              type: json["type"],
+              place: json["place"],
+              image: json["image"],
+            ),
+          );
+        }
       });
 
       return stylists.toList();
@@ -180,18 +188,21 @@ abstract class RemoteFetch {
         if (role == 'user') {
           data.forEach((e) {
             var json = e["file"];
-            stylists.add(Stylist(
-              style: Style.fromJson(json["style"]),
-              location: json['location'].toString(),
-              events: List<String>.from(json["events"].map((x) => x)),
-              season: List<String>.from(json["season"].map((x) => x)),
-              createdAt: DateTime.parse(json["createdAt"]),
-              id: json["_id"],
-              influencerId: json["influencerID"],
-              type: json["type"],
-              place: json["place"],
-              image: json["image"],
-            ));
+            if (json == null) {
+            } else {
+              stylists.add(Stylist(
+                style: Style.fromJson(json["style"]),
+                location: json['location'].toString(),
+                events: List<String>.from(json["events"].map((x) => x)),
+                season: List<String>.from(json["season"].map((x) => x)),
+                createdAt: DateTime.parse(json["createdAt"]),
+                id: json["_id"],
+                influencerId: json["influencerID"],
+                type: json["type"],
+                place: json["place"],
+                image: json["image"],
+              ));
+            }
           });
         } else {
           data.forEach((e) {
